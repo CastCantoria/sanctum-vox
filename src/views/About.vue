@@ -4,7 +4,8 @@ import Footer from "../components/Footer.vue"
 </script>
 
 <template>
-  <Header />
+  <div class="page">
+<Header />
   <section class="p-8 bg-black text-silver">
     <h2 class="text-gold text-3xl mb-4">Histoire</h2>
     <p>
@@ -28,9 +29,21 @@ import Footer from "../components/Footer.vue"
     </p>
   </section>
   <Footer />
+  </div>
 </template>
 
 <style scoped>
 .text-gold { color: #FFD700; }
 .text-silver { color: #C0C0C0; }
 </style>
+
+<style scoped>
+.page {
+  background-color: #000;
+  color: #C0C0C0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+</style>
+

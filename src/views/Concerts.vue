@@ -10,9 +10,22 @@ const events = [
 </script>
 
 <template>
-  <Header />
+  <div class="page">
+<Header />
   <section class="p-8 bg-black">
     <EventCalendar :events="events" />
   </section>
   <Footer />
+  </div>
 </template>
+
+<style scoped>
+.page {
+  background-color: #000;
+  color: #C0C0C0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+</style>
+
