@@ -1,7 +1,7 @@
 <template>
   <section class="hero">
     <h1 class="text-gold text-4xl mb-2">Bienvenue dans Sanctum Vox</h1>
-    <p class="text-silver mb-6">Là où la voix devient lumière</p>
+    <p class="text-silver mb-6">Un espace où le silence chante et l’art devient offrande.</p>
     <router-link to="/about" class="btn-red">Entrer dans le sanctuaire</router-link>
   </section>
 </template>

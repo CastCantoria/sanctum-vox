@@ -1,43 +1,74 @@
 ﻿<template>
   <footer class="footer">
-    <div class="separator"></div>
-    <p>© 2003-2025 C.A.S.T. – Tous droits réservés</p>
-    <div class="links">
-      <router-link to="/galerie" class="link">Galerie</router-link>
-      <a href="https://facebook.com" target="_blank" class="link">Facebook</a>
-      <a href="https://youtube.com" target="_blank" class="link">YouTube</a>
-      <a href="mailto:contact@cast.org" class="link">Email</a>
+    <div class="footer-content">
+      <div class="footer-section">
+        <h2 class="footer-title">C.A.S.T. – Cantoria</h2>
+        <p>📍 Antananarivo, Madagascar</p>
+        <p>📞 +261 34 11 361 57</p>
+        <p>📞 +261 32 91 828 83</p>
+        <p>✉️ castcantoria@gmail.com</p>
+      </div>
+
+      <div class="footer-section">
+        <p class="footer-verse">
+          “Ny lanitra mitory ny Voninahitrao, ary ny habakabaka maneho ny asan’ny tananao.”
+        </p>
+        <p class="footer-ref">– Salamo 19:1</p>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2025 C.A.S.T. – Tous droits réservés</p>
     </div>
   </footer>
 </template>
 
 <style scoped>
 .footer {
-  background: #000000;
-  color: #C0C0C0;
-  text-align: center;
-  padding: 2rem 1rem;
-  border-top: 2px solid #B22222;
-}
-.separator {
-  width: 60px;
-  height: 3px;
-  background: linear-gradient(90deg, #FFD700, #B22222);
-  margin: 0 auto 1rem auto;
-  border-radius: 2px;
-}
-.links {
-  margin-top: 0.5rem;
-  display: flex;
-  justify-content: center;
-  gap: 1.5rem;
-}
-.link {
+  background-color: #111;
   color: #FFD700;
-  text-decoration: none;
-  font-weight: 500;
+  padding: 2rem 1.5rem;
+  border-top: 2px solid #FFD700;
+  font-family: 'Inter', sans-serif;
 }
-.link:hover {
-  color: #B22222;
+.footer-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 960px;
+  margin: 0 auto;
+}
+.footer-section {
+  text-align: center;
+}
+.footer-title {
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+.footer-verse {
+  font-style: italic;
+  font-size: 1.1rem;
+  margin-bottom: 0.3rem;
+}
+.footer-ref {
+  font-size: 0.9rem;
+  color: #C0C0C0;
+}
+.footer-bottom {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 0.85rem;
+  color: #C0C0C0;
+}
+@media (min-width: 768px) {
+  .footer-content {
+    flex-direction: row;
+    justify-content: space-between;
+    text-align: left;
+  }
+  .footer-section {
+    flex: 1;
+  }
 }
 </style>
