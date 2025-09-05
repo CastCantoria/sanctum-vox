@@ -1,5 +1,4 @@
 ﻿<script setup>
-import BaseLayout from '@/layouts/BaseLayout.vue'
 import { ref, onMounted } from "vue"
 import Header from "../components/Header.vue"
 import Footer from "../components/Footer.vue"
@@ -97,8 +96,6 @@ const saveChanges = async () => {
 }
 </script>
 <template>
-<BaseLayout>
-
   <div class="page">
     <Header />
 
@@ -216,7 +213,6 @@ const saveChanges = async () => {
 
     <Footer />
   </div>
-</BaseLayout>
 </template>
 <style scoped>
 .page {

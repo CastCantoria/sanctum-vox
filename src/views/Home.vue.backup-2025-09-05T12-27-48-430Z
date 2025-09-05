@@ -1,5 +1,4 @@
 ﻿<script setup>
-import BaseLayout from '@/layouts/BaseLayout.vue'
 import { ref, onMounted } from "vue"
 import { useAuthPopup } from '@/composables/useAuthPopup'
 
@@ -81,8 +80,6 @@ onMounted(() => {
 </script>
 
 <template>
-<BaseLayout>
-
   <div class="page">
     <Header />
     <HeroSection />
@@ -140,7 +137,6 @@ onMounted(() => {
       <img src="/assets/avatar.png" alt="Connexion" class="avatar" @click="goToAuth" />
     </div>
   </div>
-</BaseLayout>
 </template>
 
 <style scoped>

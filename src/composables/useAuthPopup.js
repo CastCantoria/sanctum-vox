@@ -1,8 +1,7 @@
-﻿// src/composables/useAuthPopup.js
-import { ref } from 'vue'
+﻿import { ref } from 'vue'
 
 const isAuthPopupVisible = ref(false)
-const authMode = ref('login') // 'login' ou 'signup'
+const authMode = ref('login')
 
 export function useAuthPopup() {
   const openAuth = (mode = 'login') => {

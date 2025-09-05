@@ -1,4 +1,8 @@
 <template>
+  <!-- Bannière de bienvenue -->
+  <WelcomeBanner />
+
+  <!-- Vue principale avec transition -->
   <router-view v-slot="{ Component }">
     <transition name="fade" mode="out-in">
       <component :is="Component" />
@@ -15,6 +19,7 @@
 
 <script setup>
 import FloatingAuthBox from './components/FloatingAuthBox.vue'
+import WelcomeBanner from './components/WelcomeBanner.vue'
 import { useAuthPopup } from './composables/useAuthPopup'
 
 const { isAuthPopupVisible, authMode, closeAuth } = useAuthPopup()
