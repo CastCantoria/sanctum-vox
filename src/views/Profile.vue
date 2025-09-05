@@ -4,11 +4,20 @@ import Header from "../components/Header.vue"
 import Footer from "../components/Footer.vue"
 import { useAuth } from "../composables/useAuth"
 import { reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth"
+import { setDoc, doc } from "firebase/firestore"
+import { db } from "../firebase"
 
 const { user, role, updateProfile, changePassword } = useAuth()
 
 const isEditing = ref(false)
-const displayName = ref("")
+const firstName = ref("")
+const lastName = ref("")
+const selectedRole = ref("")
+const availableRoles = [
+  'Staff', 'Contributeur', 'Musicien', 'Simple Membre',
+  'Membre Alto', 'Membre Soprano', 'Membre Tenor', 'Membre Basse',
+  'Mezzosoprano', 'Contralto', 'Baryton'
+]
 const phone = ref("")
 const avatar = ref(null)
 const preview = ref("")
@@ -23,9 +32,12 @@ const showSuccessMessage = ref(false)
 
 onMounted(() => {
   if (user.value) {
-    displayName.value = user.value.displayName || ""
+    const nameParts = (user.value.displayName || "").split(" ")
+    firstName.value = nameParts[0] || ""
+    lastName.value = nameParts.slice(1).join(" ") || ""
     phone.value = user.value.phoneNumber || ""
     preview.value = user.value.photoURL || "/assets/avatar.png"
+    selectedRole.value = role.value || ""
   }
 })
 
@@ -44,17 +56,19 @@ const handleAvatarChange = (e) => {
 
 const saveChanges = async () => {
   try {
-    // Mise à jour du profil
     await updateProfile(user.value, {
-      displayName: displayName.value,
+      displayName: `${firstName.value} ${lastName.value}`,
       phoneNumber: phone.value,
       photoURL: avatar.value ? URL.createObjectURL(avatar.value) : user.value.photoURL
     })
 
-    // Rafraîchir l'avatar dans le header
-    user.value.photoURL = avatar.value ? URL.createObjectURL(avatar.value) : user.value.photoURL
+    await setDoc(doc(db, 'users', user.value.uid), {
+      role: selectedRole.value,
+      phone: phone.value,
+      displayName: `${firstName.value} ${lastName.value}`,
+      photoURL: avatar.value ? URL.createObjectURL(avatar.value) : user.value.photoURL
+    }, { merge: true })
 
-    // Changement de mot de passe si demandé
     if (oldPassword.value || newPassword.value || confirmPassword.value) {
       if (!oldPassword.value || !newPassword.value || !confirmPassword.value) {
         alert("Veuillez remplir tous les champs de mot de passe.")
@@ -68,13 +82,13 @@ const saveChanges = async () => {
       const credential = EmailAuthProvider.credential(user.value.email, oldPassword.value)
       await reauthenticateWithCredential(user.value, credential)
       await changePassword(newPassword.value)
-      showSuccessMessage.value = true
 
       oldPassword.value = ""
       newPassword.value = ""
       confirmPassword.value = ""
     }
 
+    showSuccessMessage.value = true
     isEditing.value = false
   } catch (err) {
     alert("Erreur : " + err.message)
@@ -101,15 +115,28 @@ const saveChanges = async () => {
           />
         </div>
 
+        <!-- Prénom -->
+        <p>
+          <strong>Prénom :</strong>
+          <span v-if="!isEditing">{{ firstName }}</span>
+          <input v-else v-model="firstName" class="input" />
+        </p>
+
         <!-- Nom -->
         <p>
           <strong>Nom :</strong>
-          <span v-if="!isEditing">{{ displayName }}</span>
-          <input v-else v-model="displayName" class="input" />
+          <span v-if="!isEditing">{{ lastName }}</span>
+          <input v-else v-model="lastName" class="input" />
         </p>
 
-        <!-- Email -->
-        <p><strong>Email :</strong> {{ user.email }}</p>
+        <!-- Rôle -->
+        <p>
+          <strong>Rôle :</strong>
+          <span v-if="!isEditing">{{ selectedRole }}</span>
+          <select v-else v-model="selectedRole" class="input">
+            <option v-for="r in availableRoles" :key="r" :value="r">{{ r }}</option>
+          </select>
+        </p>
 
         <!-- Téléphone -->
         <p>
@@ -118,8 +145,8 @@ const saveChanges = async () => {
           <input v-else v-model="phone" class="input" />
         </p>
 
-        <!-- Rôle -->
-        <p><strong>Rôle :</strong> {{ role || '—' }}</p>
+        <!-- Email -->
+        <p><strong>Email :</strong> {{ user.email }}</p>
 
         <!-- Changement de mot de passe -->
         <div v-if="isEditing" class="password-update">
@@ -241,6 +268,8 @@ p {
   color: #FFD700;
   margin-top: 0.3rem;
   flex: 1;
+  width: 100%;
+  max-width: 300px;
 }
 
 .label {

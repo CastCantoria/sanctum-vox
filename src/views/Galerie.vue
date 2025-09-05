@@ -1,30 +1,25 @@
 ﻿<script setup>
-import { ref } from "vue"
+import { ref, onMounted } from "vue"
 import Header from "../components/Header.vue"
 import Footer from "../components/Footer.vue"
 import { useAuth } from "../composables/useAuth"
-import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage"
+import { fetchGalleryImages } from "../composables/useGallery"
+import { useStorage } from "../composables/useStorage"
 
-const { user } = useAuth()
-const storage = getStorage()
+const { user, role } = useAuth()
+const { uploadFile } = useStorage()
 
-const images = ref([
-  { src: "/assets/images/cast-chorale.jpg", caption: "Chantez à l'Éternel un cantique nouveau." },
-  { src: "/assets/images/cathedrale majestueuse.png", caption: "Ma maison sera appelée une maison de prière." },
-  { src: "/assets/images/chorale-1.jpg", caption: "Louez-le avec les cordes et les flûtes." },
-  { src: "/assets/images/chorale-2.jpg", caption: "Que tout ce qui respire loue l'Éternel." },
-  { src: "/assets/images/concert1.jpg", caption: "Faites retentir la trompette en Sion." },
-  { src: "/assets/images/fondateur-cast.jpg", caption: "Heureux ceux qui procurent la paix." },
-  { src: "/assets/images/instrument-flute.jpg", caption: "Louez-le avec le son de la flûte." },
-  { src: "/assets/images/instrument-piano.jpg", caption: "Jouer pour Lui avec art et ferveur." },
-  { src: "/assets/images/instrument-violon.jpg", caption: "Louez-le avec les instruments à cordes." },
-  { src: "/assets/images/repertoire.png", caption: "La foi vient de ce qu’on entend." },
-  { src: "/assets/images/sary1.jpg", caption: "L'Éternel est ma lumière et mon salut." },
-  { src: "/assets/images/slide1.jpg", caption: "Chantez et réjouissez-vous, habitants de Sion." },
-  { src: "/assets/images/slide4.jpg", caption: "Que la paix de Dieu règne dans vos cœurs." },
-  { src: "/assets/images/slide5.jpg", caption: "Louez-le avec les cymbales retentissantes." },
-  { src: "/assets/images/slide6.jpg", caption: "Que tout ce que vous faites soit fait avec amour." }
-])
+const images = ref([])
+const loadingImages = ref(true)
+
+onMounted(async () => {
+  const urls = await fetchGalleryImages()
+  images.value = urls.map(url => ({
+    src: url,
+    caption: "Image de la galerie"
+  }))
+  loadingImages.value = false
+})
 
 const videos = [
   { src: "/assets/video/message-spirituel.mp4", caption: "La parole de Dieu est vivante et efficace." },
@@ -49,29 +44,23 @@ const envoyerCommentaire = () => {
   alert("Commentaire envoyé (fonction à compléter)")
 }
 
-const uploadFile = async (event) => {
+const uploadGalleryImage = async (event) => {
   const file = event.target.files[0]
   if (!file || !user.value) return
 
-  const filePath = `images/${user.value.uid}/${Date.now()}-${file.name}`
-  const fileRef = storageRef(storage, filePath)
-
+  const path = `galerie/${Date.now()}-${file.name}`
   try {
-    await uploadBytes(fileRef, file)
-    const url = await getDownloadURL(fileRef)
-
+    const url = await uploadFile(file, path)
     images.value.unshift({
       src: url,
-      caption: "Image ajoutée par " + (user.value.email || "un membre")
+      caption: "Ajouté par " + (user.value.email || "un membre")
     })
-
     alert("Image envoyée avec succès.")
   } catch (error) {
     alert("Erreur lors de l’envoi : " + error.message)
   }
 }
 </script>
-
 <template>
   <div class="page">
     <Header />
@@ -82,19 +71,22 @@ const uploadFile = async (event) => {
       <!-- Images -->
       <section>
         <h2 class="section-title">Images</h2>
-        <div class="gallery">
-          <div
-            v-for="(img, index) in (showAllImages ? images : images.slice(0, limitImages))"
-            :key="'img-' + index"
-            class="gallery-item"
-          >
-            <img :src="img.src" :alt="img.caption" />
-            <p class="caption">« {{ img.caption }} »</p>
+        <div v-if="loadingImages">Chargement des images...</div>
+        <div v-else>
+          <div class="gallery">
+            <div
+              v-for="(img, index) in (showAllImages ? images : images.slice(0, limitImages))"
+              :key="'img-' + index"
+              class="gallery-item"
+            >
+              <img :src="img.src" :alt="img.caption" />
+              <p class="caption">« {{ img.caption }} »</p>
+            </div>
           </div>
+          <button v-if="images.length > limitImages" @click="showAllImages = !showAllImages" class="toggle-btn">
+            {{ showAllImages ? "Voir moins" : "Afficher tout" }}
+          </button>
         </div>
-        <button v-if="images.length > limitImages" @click="showAllImages = !showAllImages" class="toggle-btn">
-          {{ showAllImages ? "Voir moins" : "Afficher tout" }}
-        </button>
       </section>
 
       <!-- Vidéos -->
@@ -114,7 +106,8 @@ const uploadFile = async (event) => {
           {{ showAllVideos ? "Voir moins" : "Afficher tout" }}
         </button>
       </section>
-            <!-- Audios -->
+
+      <!-- Audios -->
       <section>
         <h2 class="section-title">Audios</h2>
         <div class="gallery">
@@ -136,7 +129,7 @@ const uploadFile = async (event) => {
       <section class="interaction">
         <h2 class="section-title">Participer</h2>
         <div v-if="user">
-          <input type="file" @change="uploadFile" />
+          <input type="file" @change="uploadGalleryImage" />
           <button @click="envoyerCommentaire">Commenter</button>
         </div>
         <div v-else>
@@ -152,7 +145,6 @@ const uploadFile = async (event) => {
     <Footer />
   </div>
 </template>
-
 <style scoped>
 .page {
   background-color: #000;
@@ -161,16 +153,19 @@ const uploadFile = async (event) => {
   display: flex;
   flex-direction: column;
 }
+
 .content {
   flex: 1;
   padding: 2rem;
 }
+
 .title {
   font-family: var(--font-title);
   color: #FFD700;
   text-align: center;
   margin-bottom: 2rem;
 }
+
 .section-title {
   font-family: var(--font-title);
   color: #FFD700;
@@ -178,31 +173,39 @@ const uploadFile = async (event) => {
   border-bottom: 2px solid #FFD700;
   padding-bottom: 0.3rem;
 }
+
 .gallery {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5rem;
 }
+
 .gallery-item {
   background: #111;
   padding: 1rem;
   border-radius: 8px;
   text-align: center;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.1);
 }
+
 .gallery-item img,
 .gallery-item video {
   max-width: 100%;
   border-radius: 6px;
+  object-fit: cover;
 }
+
 .gallery-item audio {
   width: 100%;
 }
+
 .caption {
   margin-top: 0.5rem;
   font-size: 0.9rem;
   color: #FFD700;
   font-style: italic;
 }
+
 .toggle-btn {
   margin-top: 1rem;
   background: none;
@@ -213,8 +216,19 @@ const uploadFile = async (event) => {
   cursor: pointer;
   transition: background 0.3s;
 }
+
 .toggle-btn:hover {
   background: #FFD700;
   color: #000;
+}
+
+.interaction {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+input[type="file"] {
+  margin-bottom: 1rem;
+  color: #FFD700;
 }
 </style>
