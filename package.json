@@ -10,7 +10,13 @@
     "build": "vite build",
     "build:api": "echo \"✅ Aucun build nécessaire pour Express\"",
     "build:all": "npm run build && npm run build:api",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "npm run preview",
+    "lint": "npx vue-tsc --noEmit && npx eslint . --ext .vue,.js,.ts",
+    "format": "npx prettier --write .",
+    "clean": "rm -rf dist && rm -rf .firebase && echo \"🧹 Nettoyage terminé\"",
+    "deploy:vercel": "echo \"🚀 Déploiement géré automatiquement par Vercel\"",
+    "deploy:firebase": "firebase deploy --only hosting,functions"
   },
   "dependencies": {
     "@vueuse/core": "^13.9.0",
@@ -28,6 +34,9 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.1",
     "concurrently": "^9.2.1",
-    "vite": "^7.1.2"
+    "vite": "^7.1.2",
+    "eslint": "^8.56.0",
+    "prettier": "^3.1.0",
+    "vue-tsc": "^1.8.23"
   }
 }
