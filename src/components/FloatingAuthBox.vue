@@ -21,7 +21,7 @@ import { ref, computed } from 'vue'
 import { useAuthPopup } from '@/composables/useAuthPopup'
 import EmailAuthForm from './EmailAuthForm.vue'
 import PhoneSignup from './PhoneSignup.vue'
-import AddMemberModal from './AddMemberModal.vue'
+import AddMemberModal from './admin/AddMemberModal.vue'
 
 const { isAuthPopupVisible, closeAuth } = useAuthPopup()
 const mode = ref('email')

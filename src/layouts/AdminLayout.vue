@@ -3,10 +3,13 @@
     <AdminHeader />
 
     <div class="flex flex-1 overflow-hidden">
-      <AdminSidebar :collapsed="sidebarCollapsed" @toggle="sidebarCollapsed = !sidebarCollapsed" />
+      <AdminSidebar
+        :collapsed="sidebarCollapsed"
+        @toggle="sidebarCollapsed = !sidebarCollapsed"
+      />
 
       <main class="flex-1 p-6 overflow-y-auto animate-fade-slide">
-        <slot />
+        <router-view />
       </main>
     </div>
 

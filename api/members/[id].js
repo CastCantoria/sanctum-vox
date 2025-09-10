@@ -1,17 +1,21 @@
-﻿// api/members/[id].js
-import { getMemberById } from '../../lib/controllers/memberController.js'
+﻿import {
+  getMemberById,
+  updateMember,
+  deleteMember
+} from '../../lib/controllers/index.js'
 
-export default function handler(req, res) {
+export default async function handler(req, res) {
   const { id } = req.query
+  req.params = { id } // 🔧 pour compatibilité avec les contrôleurs
 
-  if (req.method === 'GET') {
-    const member = getMemberById(id)
-    if (member) {
-      res.status(200).json({ member })
-    } else {
-      res.status(404).json({ error: 'Membre introuvable' })
-    }
-  } else {
-    res.status(405).json({ error: 'Méthode non autorisée' })
+  switch (req.method) {
+    case 'GET':
+      return await getMemberById(req, res)
+    case 'PUT':
+      return await updateMember(req, res)
+    case 'DELETE':
+      return await deleteMember(req, res)
+    default:
+      return res.status(405).json({ error: 'Méthode non autorisée' })
   }
 }

@@ -7,9 +7,9 @@
 </template>
 
 <script setup>
-import MediaSection from './MediaSection.vue'
+import MediaSection from '@/components/admin/MediaSection.vue'
 
-const images = [] // à remplir dynamiquement
-const videos = [] // idem
-const audios = [] // idem
+const images = []   // à remplir dynamiquement depuis Firestore ou Storage
+const videos = []   // idem
+const audios = []   // idem
 </script>

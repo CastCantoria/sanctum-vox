@@ -35,14 +35,14 @@
 </template>
 
 <script setup>
-import { reactive, watch, toRefs } from 'vue'
-import { emit } from 'vue'
+import { reactive, watch } from 'vue'
 
 const props = defineProps({
   member: Object,
   visible: Boolean
 })
-const emitEvent = defineEmits(['close', 'updated'])
+
+const emit = defineEmits(['close', 'updated'])
 
 const form = reactive({
   nom: '',
@@ -59,7 +59,7 @@ watch(() => props.member, (newMember) => {
 })
 
 function close() {
-  emitEvent('close')
+  emit('close')
 }
 
 async function submit() {
@@ -70,7 +70,7 @@ async function submit() {
       body: JSON.stringify(form)
     })
     if (!res.ok) throw new Error('Erreur lors de la mise à jour')
-    emitEvent('updated', form)
+    emit('updated', form)
     close()
   } catch (err) {
     alert('❌ ' + err.message)

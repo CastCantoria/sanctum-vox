@@ -3,6 +3,7 @@ import { getAuth } from 'firebase/auth'
 import { getFirestore, doc, getDoc } from 'firebase/firestore'
 import { useAuthStore } from '@/stores/authStore.js'
 
+// 🌐 Vues publiques
 import Home from '@/views/Home.vue'
 import About from '@/views/About.vue'
 import Pedagogie from '@/views/Pedagogie.vue'
@@ -12,8 +13,13 @@ import Galerie from '@/views/Galerie.vue'
 import Contact from '@/views/Contact.vue'
 import Profile from '@/views/Profile.vue'
 import Messages from '@/views/Messages.vue'
-import AdminDashboard from '@/views/AdminDashboard.vue'
 import NotFound from '@/views/NotFound.vue'
+
+// 🛠️ Layout et vues admin
+import AdminLayout from '@/layouts/AdminLayout.vue'
+import AdminDashboard from '@/views/admin/AdminDashboard.vue'
+import AdminMembers from '@/views/admin/AdminMembers.vue'
+import AdminMediaPanel from '@/views/admin/AdminMediaPanel.vue'
 
 const routes = [
   { path: '/', component: Home },
@@ -25,11 +31,19 @@ const routes = [
   { path: '/contact', component: Contact },
   { path: '/profile', component: Profile },
   { path: '/messages', component: Messages },
+
+  // ✅ Routes admin imbriquées sous AdminLayout
   {
-    path: '/admin/dashboard',
-    component: AdminDashboard,
-    meta: { requiresAdmin: true }
+    path: '/admin',
+    component: AdminLayout,
+    meta: { requiresAdmin: true },
+    children: [
+      { path: 'dashboard', component: AdminDashboard },
+      { path: 'membres', component: AdminMembers },
+      { path: 'media', component: AdminMediaPanel }
+    ]
   },
+
   { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound }
 ]
 
@@ -38,6 +52,7 @@ const router = createRouter({
   routes
 })
 
+// 🔐 Middleware admin
 router.beforeEach(async (to, from, next) => {
   const auth = getAuth()
   const db = getFirestore()
