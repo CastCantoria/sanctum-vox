@@ -8,8 +8,7 @@
     "dev:api": "node api/server.js",
     "dev:all": "concurrently \"npm run dev\" \"npm run dev:api\"",
     "build": "vite build",
-    "preview": "vite preview",
-    "archive-unused": "node scripts/archive-unused.cjs"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@vueuse/core": "^13.9.0",
@@ -21,7 +20,7 @@
     "swiper": "^11.2.10",
     "vue": "^3.5.18",
     "vue-router": "^4.5.1",
-    "vue-toastification": "github:maronato/vue-toastification"
+    "vue-toastification": "^2.0.0-rc.5"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.1",

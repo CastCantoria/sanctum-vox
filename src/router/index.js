@@ -49,13 +49,23 @@ router.beforeEach(async (to, from, next) => {
     if (!currentUser) return next('/')
 
     try {
-      const userDoc = await getDoc(doc(db, 'membres', currentUser.uid))
-      const userData = userDoc.exists() ? userDoc.data() : null
+      const userDoc = await getDoc(doc(db, 'users', currentUser.uid))
+      if (!userDoc.exists()) return next('/')
 
-      store.setUser(userData)
+      const userData = userDoc.data()
+      const isAdminFlag = userData.role === 'admin'
+
+      store.setUser({
+        uid: currentUser.uid,
+        email: currentUser.email,
+        displayName: currentUser.displayName,
+        photoURL: currentUser.photoURL,
+        isAdmin: isAdminFlag
+      })
+
       store.setToken(await currentUser.getIdToken())
 
-      return store.isAdmin ? next() : next('/')
+      return isAdminFlag ? next() : next('/')
     } catch (error) {
       console.error('🔐 Erreur de vérification admin :', error)
       return next('/')

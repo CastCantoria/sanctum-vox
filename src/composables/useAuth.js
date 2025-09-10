@@ -10,42 +10,38 @@ import {
   signOut
 } from 'firebase/auth'
 import { doc, getDoc, setDoc } from 'firebase/firestore'
-import { auth, db } from '../firebase'
+import { auth, db } from '@/firebase'
 
 const user = ref(null)
 const role = ref(null)
 const isAdmin = computed(() => role.value === 'admin')
 
-// Écoute des changements d'état d'authentification
-onAuthStateChanged(auth, async (u) => {
-  user.value = u
-  if (u) {
-    const docSnap = await getDoc(doc(db, 'users', u.uid))
-    role.value = docSnap.exists() ? docSnap.data().role : null
-  } else {
-    role.value = null
-  }
-})
+// 🔄 Écoute des changements d'état d'authentification
+const initAuthListener = () => {
+  onAuthStateChanged(auth, async (u) => {
+    user.value = u
+    if (u) {
+      const docSnap = await getDoc(doc(db, 'users', u.uid))
+      role.value = docSnap.exists() ? docSnap.data().role : null
+    } else {
+      role.value = null
+    }
+  })
+}
 
-// Connexion avec email/mot de passe
-const login = async (email, password) => {
-  const { useRouter } = await import('vue-router')
-  const router = useRouter()
-
+// 🔐 Connexion avec email/mot de passe
+const login = async (email, password, router) => {
   const result = await signInWithEmailAndPassword(auth, email, password)
   user.value = result.user
 
   const docSnap = await getDoc(doc(db, 'users', result.user.uid))
   role.value = docSnap.exists() ? docSnap.data().role : null
 
-  router.push(role.value === 'admin' ? '/admin/dashboard' : '/')
+  if (router) router.push(role.value === 'admin' ? '/admin/dashboard' : '/')
 }
 
-// Inscription avec email/mot de passe
-const signup = async (email, password) => {
-  const { useRouter } = await import('vue-router')
-  const router = useRouter()
-
+// 📝 Inscription avec email/mot de passe
+const signup = async (email, password, router) => {
   const result = await createUserWithEmailAndPassword(auth, email, password)
   user.value = result.user
   role.value = 'membre'
@@ -55,15 +51,12 @@ const signup = async (email, password) => {
     email: result.user.email
   })
 
-  router.push('/')
+  if (router) router.push('/')
   return result
 }
 
-// Connexion avec Google
-const loginWithGoogle = async () => {
-  const { useRouter } = await import('vue-router')
-  const router = useRouter()
-
+// 🌐 Connexion avec Google
+const loginWithGoogle = async (router) => {
   const provider = new GoogleAuthProvider()
   const result = await signInWithPopup(auth, provider)
   user.value = result.user
@@ -81,10 +74,10 @@ const loginWithGoogle = async () => {
     role.value = docSnap.data().role
   }
 
-  router.push(role.value === 'admin' ? '/admin/dashboard' : '/')
+  if (router) router.push(role.value === 'admin' ? '/admin/dashboard' : '/')
 }
 
-// Mise à jour du profil utilisateur
+// 🧾 Mise à jour du profil utilisateur
 const updateProfile = async (u, data) => {
   await firebaseUpdateProfile(u, {
     displayName: data.displayName || '',
@@ -104,30 +97,28 @@ const updateProfile = async (u, data) => {
   )
 }
 
-// Changement de mot de passe
+// 🔑 Changement de mot de passe
 const changePassword = async (newPassword) => {
   if (!auth.currentUser) throw new Error('Utilisateur non connecté.')
   await updatePassword(auth.currentUser, newPassword)
 }
 
-// Déconnexion
-const logout = async () => {
-  const { useRouter } = await import('vue-router')
-  const router = useRouter()
-
+// 🚪 Déconnexion
+const logout = async (router) => {
   await signOut(auth)
   user.value = null
   role.value = null
-  router.push('/')
+  if (router) router.push('/')
   console.log('Déconnexion réussie')
 }
 
-// Export du composable
+// 🧩 Export du composable
 export function useAuth() {
   return {
     user,
     role,
     isAdmin,
+    initAuthListener,
     login,
     signup,
     loginWithGoogle,

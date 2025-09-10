@@ -1,6 +1,17 @@
 ﻿import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { useFirebase } from '@/composables/useFirebase.js'
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
+} from 'firebase/auth'
+import {
+  getFirestore,
+  doc,
+  getDoc
+} from 'firebase/firestore'
+import { useToaster } from '@/composables/useToaster'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
@@ -11,6 +22,10 @@ export const useAuthStore = defineStore('auth', () => {
   const isAdmin = computed(() => role.value === 'admin' || user.value?.isAdmin === true)
   const isLoggedIn = computed(() => !!user.value)
 
+  const auth = getAuth()
+  const db = getFirestore()
+  const { success, error } = useToaster()
+
   function setUser(u) {
     user.value = u
     role.value = u?.isAdmin ? 'admin' : 'member'
@@ -20,39 +35,96 @@ export const useAuthStore = defineStore('auth', () => {
     token.value = t
   }
 
-  async function login(email, password) {
-    const { login, getToken } = useFirebase()
+  async function login(email, password, router) {
     loading.value = true
     try {
-      const userData = await login(email, password)
-      const authToken = await getToken()
-      setUser(userData)
-      setToken(authToken)
+      const result = await signInWithEmailAndPassword(auth, email, password)
+      const u = result.user
+      const tokenResult = await u.getIdToken()
+      const userDocRef = doc(db, 'users', u.uid)
+      const userDoc = await getDoc(userDocRef)
+
+      if (!userDoc.exists()) {
+        error('⛔ Profil utilisateur introuvable')
+        return
+      }
+
+      const roleFromDb = userDoc.data().role || 'member'
+      const isAdminFlag = roleFromDb === 'admin'
+
+      setUser({
+        uid: u.uid,
+        email: u.email,
+        displayName: u.displayName,
+        photoURL: u.photoURL,
+        isAdmin: isAdminFlag
+      })
+
+      setToken(tokenResult)
+      success('Connexion réussie 🎉')
+
+      if (router) {
+        router.push(isAdminFlag ? '/admin/dashboard' : '/')
+      }
     } catch (err) {
-      throw new Error('Erreur de connexion : ' + err.message)
+      error('⛔ Erreur de connexion : ' + err.message)
+      throw err
     } finally {
       loading.value = false
     }
   }
 
-  async function logout() {
-    const { logout } = useFirebase()
-    await logout()
+  async function logout(router) {
+    await signOut(auth)
     user.value = null
     token.value = null
     role.value = null
+    success('Déconnexion réussie 👋')
+    if (router) router.push('/')
   }
 
-  async function fetchSession() {
-    const { getUserData, getToken } = useFirebase()
+  async function fetchSession(router) {
     loading.value = true
     try {
-      const userData = await getUserData()
-      const authToken = await getToken()
-      setUser(userData)
-      setToken(authToken)
+      await new Promise((resolve) => {
+        onAuthStateChanged(auth, async (u) => {
+          if (!u) {
+            console.warn('Session non récupérée')
+            return resolve()
+          }
+
+          const tokenResult = await u.getIdToken()
+          const userDocRef = doc(db, 'users', u.uid)
+          const userDoc = await getDoc(userDocRef)
+
+          if (!userDoc.exists()) {
+            error('⛔ Profil utilisateur introuvable')
+            return resolve()
+          }
+
+          const roleFromDb = userDoc.data().role || 'member'
+          const isAdminFlag = roleFromDb === 'admin'
+
+          setUser({
+            uid: u.uid,
+            email: u.email,
+            displayName: u.displayName,
+            photoURL: u.photoURL,
+            isAdmin: isAdminFlag
+          })
+
+          setToken(tokenResult)
+
+          if (router && isAdminFlag) {
+            router.push('/admin/dashboard')
+          }
+
+          resolve()
+        })
+      })
     } catch (err) {
-      console.warn('Session non récupérée')
+      console.warn('Session non récupérée :', err.message)
+      error('⛔ Impossible de restaurer la session')
     } finally {
       loading.value = false
     }

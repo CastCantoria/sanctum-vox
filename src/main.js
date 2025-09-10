@@ -5,7 +5,7 @@ import { createPinia } from 'pinia'
 import firebasePlugin from './plugins/firebase.plugin.js'
 import Toast from 'vue-toastification'
 import 'vue-toastification/dist/index.css'
-import { useAuthStore } from '@/stores/authStore.js' // ou useStore.js selon ton nom
+import { useAuthStore } from '@/stores/authStore.js'
 
 const app = createApp(App)
 const pinia = createPinia()
@@ -22,6 +22,8 @@ app.use(Toast, {
 })
 
 const store = useAuthStore()
-store.fetchUser()
+
+// 🔄 Attente de la session avant le montage
+await store.fetchSession(router)
 
 app.mount('#app')
