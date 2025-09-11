@@ -14,6 +14,7 @@ import Contact from '@/views/Contact.vue'
 import Profile from '@/views/Profile.vue'
 import Messages from '@/views/Messages.vue'
 import NotFound from '@/views/NotFound.vue'
+import Logout from '@/views/Logout.vue' // ✅ Vue dédiée
 
 // 🛠️ Layout et vues admin
 import AdminLayout from '@/layouts/AdminLayout.vue'
@@ -32,24 +33,20 @@ const routes = [
   { path: '/profile', component: Profile },
   { path: '/messages', component: Messages },
 
-  // 🔐 Route de déconnexion
+  // 🔐 Route de déconnexion avec vue visible
   {
     path: '/logout',
-    beforeEnter: (to, from, next) => {
+    component: Logout,
+    beforeEnter: async (to, from, next) => {
       const store = useAuthStore()
       const auth = getAuth()
 
-      // 🔐 Supprimer le token et réinitialiser le store
+      await auth.signOut()
       store.setToken(null)
       store.setUser(null)
-      auth.signOut()
+      localStorage.clear()
 
-      // ✅ Optionnel : toast de confirmation
-      // import { useToast } from 'vue-toastification'
-      // const toast = useToast()
-      // toast.success('Déconnexion réussie')
-
-      next('/') // ou next('/login') si tu as une page dédiée
+      next()
     }
   },
 
