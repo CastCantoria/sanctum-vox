@@ -1,4 +1,7 @@
-﻿<template>
+﻿<script setup>
+import Footer from "@/components/Footer.vue"
+</script>
+<template>
   <section class="home">
     <h1 class="title">Bienvenue sur C.A.S.T. – Cantoria</h1>
     <p class="subtitle">Explorez notre sanctuaire musical et spirituel.</p>

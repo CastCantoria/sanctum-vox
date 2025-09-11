@@ -1,28 +1,57 @@
 ﻿<template>
-  <div class="menu-wrapper">
-    <router-link to="/" class="nav-link">Accueil</router-link>
-
-    <div class="nav-group" @mouseenter="activeGroup = 'sanctuaire'" @mouseleave="activeGroup = null">
-      <span class="nav-link group-title">Sanctuaire ▾</span>
-      <div class="dropdown" v-if="activeGroup === 'sanctuaire'">
-        <router-link to="/about" class="nav-link">À propos</router-link>
-        <router-link to="/spiritualite" class="nav-link">Spiritualité</router-link>
-        <router-link to="/contact" class="nav-link">Contact</router-link>
-      </div>
-    </div>
-
-    <div class="nav-group" @mouseenter="activeGroup = 'expression'" @mouseleave="activeGroup = null">
-      <span class="nav-link group-title">Expression ▾</span>
-      <div class="dropdown" v-if="activeGroup === 'expression'">
-        <router-link to="/concerts" class="nav-link">Concerts</router-link>
-        <router-link to="/galerie" class="nav-link">Galerie</router-link>
-        <router-link to="/pedagogie" class="nav-link">Pédagogie</router-link>
-      </div>
-    </div>
-  </div>
+  <nav class="nav">
+    <ul class="nav-list">
+      <li><RouterLink to="/" class="link" exact>Accueil</RouterLink></li>
+      <li><RouterLink to="/about" class="link">À propos</RouterLink></li>
+      <li><RouterLink to="/pedagogie" class="link">Pédagogie</RouterLink></li>
+      <li><RouterLink to="/concerts" class="link">Concerts</RouterLink></li>
+      <li><RouterLink to="/galerie" class="link">Galerie</RouterLink></li>
+      <li><RouterLink to="/spiritualite" class="link">Spiritualité</RouterLink></li>
+      <li><RouterLink to="/contact" class="link">Contact</RouterLink></li>
+    </ul>
+  </nav>
 </template>
 
-<script setup>
-import { ref } from 'vue'
-const activeGroup = ref(null)
-</script>
+<style scoped>
+.nav {
+  display: flex;
+  align-items: center;
+}
+
+.nav-list {
+  display: flex;
+  gap: 1.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.link {
+  position: relative;
+  color: #FFD700;
+  font-weight: 500;
+  text-decoration: none;
+  padding: 0.4rem 0;
+  transition: color 0.3s ease;
+}
+
+.link::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0%;
+  height: 2px;
+  background-color: #FFD700;
+  transition: width 0.3s ease;
+}
+
+.link:hover::after {
+  width: 100%;
+}
+
+.link.router-link-exact-active {
+  font-weight: 700;
+  border-bottom: 2px solid #FFD700;
+}
+</style>

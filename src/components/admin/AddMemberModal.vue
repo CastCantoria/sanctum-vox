@@ -1,18 +1,19 @@
 ﻿<template>
-  <div>
-    <h3 class="title">Ajouter un membre</h3>
+  <div class="add-member-modal">
+    <h3 class="title">👤 Ajout manuel d’un membre</h3>
 
-    <form @submit.prevent="addMember">
+    <form @submit.prevent="submit">
       <input v-model="nom" type="text" placeholder="Nom complet" required />
+      <input v-model="email" type="email" placeholder="Email" required />
       <select v-model="role" required>
-        <option disabled value="">Choisir un rôle</option>
-        <option v-for="r in availableRoles" :key="r" :value="r">{{ r }}</option>
+        <option disabled value="">Sélectionner un rôle</option>
+        <option value="choriste">Choriste</option>
+        <option value="admin">Administrateur</option>
+        <option value="invite">Invité</option>
       </select>
-      <input v-model="phone" type="tel" placeholder="Téléphone (optionnel)" />
-      <input v-model="email" type="email" placeholder="Email (optionnel)" />
 
-      <button type="submit" :disabled="isSubmitting">
-        {{ isSubmitting ? 'Ajout...' : 'Ajouter le membre' }}
+      <button type="submit" :disabled="loading">
+        {{ loading ? 'Ajout en cours...' : 'Ajouter le membre' }}
       </button>
     </form>
 
@@ -23,65 +24,67 @@
 
 <script setup>
 import { ref } from 'vue'
-import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore'
+import { getFirestore, doc, setDoc, serverTimestamp } from 'firebase/firestore'
+import { v4 as uuidv4 } from 'uuid'
 
 const db = getFirestore()
 
 const nom = ref('')
-const role = ref('')
-const phone = ref('')
 const email = ref('')
-const isSubmitting = ref(false)
+const role = ref('')
+const loading = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
 
-const availableRoles = [
-  'Staff', 'Contributeur', 'Musicien', 'Simple Membre',
-  'Membre Alto', 'Membre Soprano', 'Membre Tenor',
-  'Membre Basse', 'Mezzosoprano', 'Contralto', 'Baryton'
-]
-
-const addMember = async () => {
+const submit = async () => {
   errorMessage.value = ''
   successMessage.value = ''
-  isSubmitting.value = true
+  loading.value = true
 
   try {
-    await addDoc(collection(db, 'users'), {
+    const id = uuidv4()
+    await setDoc(doc(db, 'users', id), {
       nom: nom.value,
+      email: email.value,
       role: role.value,
-      phone: phone.value || null,
-      email: email.value || null,
       createdAt: serverTimestamp(),
       isActive: true
     })
 
     successMessage.value = 'Membre ajouté avec succès 🎉'
     nom.value = ''
-    role.value = ''
-    phone.value = ''
     email.value = ''
+    role.value = ''
   } catch (error) {
     errorMessage.value = error.message
   } finally {
-    isSubmitting.value = false
+    loading.value = false
   }
 }
 </script>
 
 <style scoped>
+.add-member-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
 .title {
   text-align: center;
   font-size: 1.4rem;
   margin-bottom: 1rem;
   color: #3a3a3a;
 }
+
 form {
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
 }
-input, select {
+
+input,
+select {
   padding: 0.6rem;
   border: 1px solid #ccc;
   border-radius: 6px;
@@ -89,6 +92,11 @@ input, select {
   background-color: #fff;
   color: #3a3a3a;
 }
+
+select:invalid {
+  color: #999;
+}
+
 button {
   background-color: #c8a951;
   color: #fff;
@@ -98,14 +106,17 @@ button {
   cursor: pointer;
   font-weight: bold;
 }
+
 button:hover {
   background-color: #b08c3f;
 }
+
 .error-message {
   color: #ff6b6b;
   font-size: 0.9rem;
   text-align: center;
 }
+
 .success-message {
   color: #4caf50;
   font-size: 0.9rem;
