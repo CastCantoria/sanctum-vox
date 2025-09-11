@@ -24,7 +24,11 @@ export function useAuth() {
     try {
       await authStore.login(email, password, router)
     } catch (err) {
-      error('⛔ Erreur de connexion : ' + err.message)
+      if (err.code === 'auth/invalid-credential') {
+        error('Identifiants incorrects. Vérifiez votre email ou mot de passe.')
+      } else {
+        error('⛔ Erreur de connexion : ' + err.message)
+      }
       throw err
     }
   }

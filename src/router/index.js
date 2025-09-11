@@ -14,7 +14,7 @@ import Contact from '@/views/Contact.vue'
 import Profile from '@/views/Profile.vue'
 import Messages from '@/views/Messages.vue'
 import NotFound from '@/views/NotFound.vue'
-import Logout from '@/views/Logout.vue' // ✅ Vue dédiée
+import Logout from '@/views/Logout.vue'
 
 // 🛠️ Layout et vues admin
 import AdminLayout from '@/layouts/AdminLayout.vue'
@@ -33,15 +33,20 @@ const routes = [
   { path: '/profile', component: Profile },
   { path: '/messages', component: Messages },
 
-  // 🔐 Route de déconnexion avec vue visible
+  // 🔐 Déconnexion avec nettoyage complet
   {
     path: '/logout',
     component: Logout,
-    beforeEnter: async (to, from, next) => {
+    beforeEnter: async (_, __, next) => {
       const store = useAuthStore()
       const auth = getAuth()
 
-      await auth.signOut()
+      try {
+        await auth.signOut()
+      } catch (err) {
+        console.warn('⚠️ Erreur lors de la déconnexion :', err)
+      }
+
       store.setToken(null)
       store.setUser(null)
       localStorage.clear()
@@ -50,7 +55,7 @@ const routes = [
     }
   },
 
-  // ✅ Routes admin imbriquées sous AdminLayout
+  // 🛡️ Routes admin protégées
   {
     path: '/admin',
     component: AdminLayout,
@@ -62,6 +67,7 @@ const routes = [
     ]
   },
 
+  // 🧭 Fallback 404
   { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound }
 ]
 
@@ -96,7 +102,8 @@ router.beforeEach(async (to, from, next) => {
         isAdmin: isAdminFlag
       })
 
-      store.setToken(await currentUser.getIdToken())
+      const token = await currentUser.getIdToken()
+      store.setToken(token)
 
       return isAdminFlag ? next() : next('/')
     } catch (error) {

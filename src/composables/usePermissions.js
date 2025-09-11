@@ -11,9 +11,7 @@ const ROLES = {
 export function usePermissions() {
   const { role } = useAuth()
 
-  const hasRole = (allowedRoles) => {
-    return allowedRoles.includes(role.value)
-  }
+  const hasRole = (allowedRoles) => allowedRoles.includes(role.value)
 
   const canEditGallery = computed(() => hasRole([ROLES.ADMIN]))
   const canDeleteUser = computed(() => hasRole([ROLES.ADMIN]))
