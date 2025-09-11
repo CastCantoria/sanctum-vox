@@ -4,27 +4,42 @@
       <div class="auth-box" role="dialog" aria-modal="true">
         <button class="close-btn" @click="closeAuth" aria-label="Fermer la fenêtre">✕</button>
 
+        <!-- Composant actif selon le mode -->
+        <component :is="activeComponent" @close="closeAuth" />
+
+        <!-- Lien d'inscription -->
+        <div class="signup-prompt">
+          Pas encore inscrit ?
+          <button class="signup-link" @click="mode = 'email'">Créer un compte</button>
+        </div>
+
+        <!-- Boutons de mode -->
         <div class="mode-switch">
           <button :class="{ active: mode === 'email' }" @click="mode = 'email'">📧 Email</button>
           <button :class="{ active: mode === 'phone' }" @click="mode = 'phone'">📱 Téléphone</button>
           <button :class="{ active: mode === 'admin' }" @click="mode = 'admin'">👤 Ajout manuel</button>
         </div>
-
-        <component :is="activeComponent" @close="closeAuth" />
       </div>
     </transition>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useAuthPopup } from '@/composables/useAuthPopup'
+import { useAuthStore } from '@/stores/authStore.js'
 import EmailAuthForm from './EmailAuthForm.vue'
 import PhoneSignup from './PhoneSignup.vue'
 import AddMemberModal from './admin/AddMemberModal.vue'
 
 const { isAuthPopupVisible, closeAuth } = useAuthPopup()
+const authStore = useAuthStore()
 const mode = ref('email')
+
+// 👁️ Fermeture automatique si l'utilisateur est connecté
+watch(() => authStore.user, (u) => {
+  if (u) closeAuth()
+})
 
 const activeComponent = computed(() => {
   switch (mode.value) {
@@ -52,6 +67,7 @@ const activeComponent = computed(() => {
   justify-content: center;
   z-index: 1000;
 }
+
 .auth-box {
   background: #fdfaf6;
   padding: 2rem;
@@ -63,23 +79,7 @@ const activeComponent = computed(() => {
   animation: breathe 0.6s ease;
   color: #3a3a3a;
 }
-.mode-switch {
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-.mode-switch button {
-  padding: 0.4rem 0.8rem;
-  border: none;
-  background: #eee;
-  cursor: pointer;
-  border-radius: 6px;
-}
-.mode-switch button.active {
-  background: #c8a951;
-  color: #fff;
-}
+
 .close-btn {
   position: absolute;
   top: 12px;
@@ -90,6 +90,49 @@ const activeComponent = computed(() => {
   cursor: pointer;
   color: #c8a951;
 }
+
+.signup-prompt {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.signup-link {
+  background: none;
+  border: none;
+  color: #c8a951;
+  font-weight: bold;
+  cursor: pointer;
+  margin-left: 0.3rem;
+  text-decoration: underline;
+}
+
+.signup-link:hover {
+  color: #a88b3f;
+}
+
+.mode-switch {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.mode-switch button {
+  padding: 0.4rem 0.8rem;
+  border: none;
+  background: #eee;
+  cursor: pointer;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.mode-switch button.active {
+  background: #c8a951;
+  color: #fff;
+}
+
 @keyframes breathe {
   from {
     opacity: 0;
@@ -100,6 +143,7 @@ const activeComponent = computed(() => {
     transform: scale(1);
   }
 }
+
 .fade-slide-enter-active,
 .fade-slide-leave-active {
   transition: opacity 0.4s ease, transform 0.4s ease;

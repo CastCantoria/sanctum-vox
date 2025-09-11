@@ -13,10 +13,10 @@ const router = Router()
 
 // ✅ Validation des données membres
 const memberValidation = [
-  body('nom').notEmpty().withMessage('Le nom est requis'),
-  body('prenom').notEmpty().withMessage('Le prénom est requis'),
-  body('email').isEmail().withMessage('Email invalide'),
-  body('affiliation').notEmpty().withMessage('Affiliation requise')
+  body('nom').trim().notEmpty().withMessage('Le nom est requis'),
+  body('prenom').trim().notEmpty().withMessage('Le prénom est requis'),
+  body('email').trim().isEmail().withMessage('Email invalide'),
+  body('affiliation').trim().notEmpty().withMessage('Affiliation requise')
 ]
 
 // 📖 Routes publiques

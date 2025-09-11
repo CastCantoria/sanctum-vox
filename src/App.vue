@@ -27,7 +27,9 @@ import LoadingScreen from './components/LoadingScreen.vue'
 import { useAuthPopup } from './composables/useAuthPopup'
 import { useAuthStore } from '@/stores/authStore.js'
 
-const { isAuthPopupVisible, authMode, closeAuth } = useAuthPopup()
+const { isAuthPopupVisible, authMode, closeAuth, autoCloseOnLogin } = useAuthPopup()
+autoCloseOnLogin()
+
 const auth = useAuthStore()
 </script>
 

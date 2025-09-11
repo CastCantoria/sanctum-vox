@@ -32,6 +32,27 @@ const routes = [
   { path: '/profile', component: Profile },
   { path: '/messages', component: Messages },
 
+  // 🔐 Route de déconnexion
+  {
+    path: '/logout',
+    beforeEnter: (to, from, next) => {
+      const store = useAuthStore()
+      const auth = getAuth()
+
+      // 🔐 Supprimer le token et réinitialiser le store
+      store.setToken(null)
+      store.setUser(null)
+      auth.signOut()
+
+      // ✅ Optionnel : toast de confirmation
+      // import { useToast } from 'vue-toastification'
+      // const toast = useToast()
+      // toast.success('Déconnexion réussie')
+
+      next('/') // ou next('/login') si tu as une page dédiée
+    }
+  },
+
   // ✅ Routes admin imbriquées sous AdminLayout
   {
     path: '/admin',

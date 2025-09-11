@@ -1,38 +1,34 @@
 ﻿<template>
   <transition name="fade-scale">
-    <div v-if="visible" class="welcome-box">
+    <div
+      v-if="visible"
+      class="welcome-box"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="welcome-title"
+      tabindex="0"
+      @keydown.esc="dismiss"
+    >
       <div class="box-content">
-        <h2 class="text-2xl font-bold mb-2">Bienvenue {{ firstName }} 👋</h2>
+        <h2 id="welcome-title" class="text-2xl font-bold mb-2">
+          Bienvenue {{ firstName }} 👋
+        </h2>
         <p class="text-sm mb-4">
-          Tu es inscrit en tant que <strong>{{ role }}</strong>. Tu peux modifier ton profil à tout moment.
+          Tu es inscrit en tant que <strong>{{ role }}</strong>.
+          Tu peux modifier ton profil à tout moment.
         </p>
-        <button @click="visible = false" class="btn-close">Continuer</button>
+        <button @click="dismiss" class="btn-close">Continuer</button>
       </div>
     </div>
   </transition>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { getAuth, onAuthStateChanged } from 'firebase/auth'
-import { getFirestore, doc, getDoc } from 'firebase/firestore'
+import { useWelcome } from '@/composables/useWelcome'
 
-const auth = getAuth()
-const db = getFirestore()
+const { visible, firstName, role, checkWelcome, dismiss } = useWelcome()
 
-const visible = ref(false)
-const firstName = ref('ami')
-const role = ref('Membre')
-
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    const userDoc = await getDoc(doc(db, 'users', user.uid))
-    const data = userDoc.data()
-    firstName.value = data?.firstName || user.displayName?.split(' ')[0] || 'ami'
-    role.value = data?.role || 'Membre'
-    visible.value = true
-  }
-})
+checkWelcome()
 </script>
 
 <style scoped>
@@ -44,6 +40,7 @@ onAuthStateChanged(auth, async (user) => {
   align-items: center;
   justify-content: center;
   z-index: 999;
+  outline: none;
 }
 
 .box-content {

@@ -1,171 +1,146 @@
 ﻿<template>
-  <div>
-    <h2 class="greeting">{{ greeting }}</h2>
-    <h3 class="title">{{ authMode === 'login' ? 'Connexion' : 'S’inscrire' }}</h3>
+  <div class="email-auth-form">
+    <h2 class="title">Connexion</h2>
 
-    <form @submit.prevent="handleSubmit" class="space-y-4">
-      <template v-if="authMode === 'signup'">
-        <input v-model="firstName" type="text" placeholder="Prénom" required />
-        <input v-model="lastName" type="text" placeholder="Nom" required />
-        <select v-model="selectedRole" required>
-          <option disabled value="">Choisir un rôle</option>
-          <option v-for="role in availableRoles" :key="role" :value="role">{{ role }}</option>
-        </select>
-        <input v-model="phone" type="tel" placeholder="Téléphone" />
-        <input v-model="email" type="email" placeholder="Adresse email" required />
-        <input v-model="confirmEmail" type="email" placeholder="Confirmer l'email" required />
+    <form @submit.prevent="handleLogin" class="form">
+      <label>
+        Email :
+        <input v-model="email" type="email" required />
+      </label>
 
-        <!-- Mot de passe avec œil -->
-        <div class="relative">
-          <input :type="showPassword ? 'text' : 'password'" v-model="password" placeholder="Mot de passe" required />
-          <button type="button" @click="showPassword = !showPassword" class="absolute right-3 top-2 text-gray-500">
-            <span v-if="showPassword">🙈</span>
-            <span v-else>👁️</span>
+      <label class="password-field">
+        Mot de passe :
+        <div class="password-wrapper">
+          <input :type="showPassword ? 'text' : 'password'" v-model="password" required />
+          <button type="button" class="toggle-btn" @click="showPassword = !showPassword">
+            👁️
           </button>
         </div>
+      </label>
 
-        <input :type="showPassword ? 'text' : 'password'" v-model="confirmPassword" placeholder="Confirmer le mot de passe" required />
-        <input type="file" @change="handleFileChange" />
-      </template>
+      <div class="forgot-link">
+        <button type="button" class="link-btn" @click="recoverPassword">Mot de passe oublié ?</button>
+      </div>
 
-      <template v-else>
-        <input v-model="email" type="email" placeholder="Email" required />
+      <button type="submit" class="btn-login">Se connecter</button>
 
-        <!-- Mot de passe avec œil -->
-        <div class="relative">
-          <input :type="showPassword ? 'text' : 'password'" v-model="password" placeholder="Mot de passe" required />
-          <button type="button" @click="showPassword = !showPassword" class="absolute right-3 top-2 text-gray-500">
-            <span v-if="showPassword">🙈</span>
-            <span v-else>👁️</span>
-          </button>
-        </div>
-
-        <!-- Lien mot de passe oublié -->
-        <div class="text-right">
-          <a href="/mot-de-passe-oublie" class="text-sm text-indigo-600 hover:underline">
-            Mot de passe oublié ?
-          </a>
-        </div>
-      </template>
-
-      <button class="submit-btn" :disabled="isLoading">
-        {{ isLoading ? '...' : authMode === 'login' ? 'Se connecter' : 'S’inscrire' }}
-      </button>
+      <div class="separator">ou</div>
 
       <GoogleLoginButton />
-
-      <p v-if="errorMessage" class="error-message text-red-600">{{ errorMessage }}</p>
     </form>
-
-    <p class="switch-mode mt-4 text-center">
-      <span>{{ authMode === 'login' ? 'Pas encore inscrit ?' : 'Déjà membre ?' }}</span>
-      <a @click="authMode = authMode === 'login' ? 'signup' : 'login'" class="text-indigo-600 hover:underline ml-1">
-        {{ authMode === 'login' ? 'Créer un compte' : 'Se connecter' }}
-      </a>
-    </p>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useAuthPopup } from '@/composables/useAuthPopup'
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth'
-import { getFirestore, doc, setDoc } from 'firebase/firestore'
-import { uploadFileAndGetURL } from '@/composables/useStorage'
-import GoogleLoginButton from '@/components/GoogleLoginButton.vue'
+import { ref } from 'vue'
+import { useAuth } from '@/composables/useAuth'
+import { useRouter } from 'vue-router'
+import GoogleLoginButton from './GoogleLoginButton.vue'
 
-const { authMode, closeAuth } = useAuthPopup()
-const auth = getAuth()
-const db = getFirestore()
+const { login } = useAuth()
+const router = useRouter()
 
-const firstName = ref('')
-const lastName = ref('')
-const selectedRole = ref('')
-const phone = ref('')
 const email = ref('')
-const confirmEmail = ref('')
 const password = ref('')
-const confirmPassword = ref('')
-const avatarFile = ref(null)
-
-const errorMessage = ref('')
-const isLoading = ref(false)
 const showPassword = ref(false)
 
-const availableRoles = [
-  'Staff', 'Contributeur', 'Musicien', 'Simple Membre',
-  'Membre Alto', 'Membre Soprano', 'Membre Tenor',
-  'Membre Basse', 'Mezzosoprano', 'Contralto', 'Baryton'
-]
-
-const greeting = computed(() => {
-  const hour = new Date().getHours()
-  if (hour < 12) return 'Bienvenue dans la lumière du matin'
-  if (hour < 18) return 'Bienvenue dans la clarté du jour'
-  return 'Bienvenue dans la paix du soir'
-})
-
-const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
-
-const handleFileChange = (e) => {
-  avatarFile.value = e.target.files[0]
+const handleLogin = async () => {
+  try {
+    await login(email.value, password.value, router)
+  } catch (err) {
+    alert('Erreur : ' + err.message)
+  }
 }
 
-const handleSubmit = async () => {
-  errorMessage.value = ''
-  isLoading.value = true
-
-  if (!isValidEmail(email.value)) {
-    errorMessage.value = "Adresse email invalide."
-    isLoading.value = false
-    return
-  }
-
-  if (authMode.value === 'signup') {
-    if (email.value !== confirmEmail.value) {
-      errorMessage.value = "Les emails ne correspondent pas."
-      isLoading.value = false
-      return
-    }
-
-    if (password.value !== confirmPassword.value) {
-      errorMessage.value = "Les mots de passe ne correspondent pas."
-      isLoading.value = false
-      return
-    }
-  }
-
-  try {
-    if (authMode.value === 'login') {
-      await signInWithEmailAndPassword(auth, email.value, password.value)
-    } else {
-      const userCredential = await createUserWithEmailAndPassword(auth, email.value, password.value)
-      const user = userCredential.user
-
-      let avatarURL = ''
-      if (avatarFile.value) {
-        avatarURL = await uploadFileAndGetURL(avatarFile.value, `avatars/${user.uid}`)
-      }
-
-      await setDoc(doc(db, 'users', user.uid), {
-        firstName: firstName.value,
-        lastName: lastName.value,
-        role: selectedRole.value,
-        phone: phone.value,
-        email: email.value,
-        avatar: avatarURL,
-        createdAt: new Date()
-      }, { merge: true })
-    }
-    closeAuth()
-  } catch (error) {
-    errorMessage.value = error.message
-  } finally {
-    isLoading.value = false
-  }
+const recoverPassword = () => {
+  alert('Fonction de récupération à implémenter.')
 }
 </script>
 
 <style scoped>
-/* Tu peux réutiliser les styles de FloatingAuthBox.vue ici */
+.email-auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.title {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #c8a951;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.form label {
+  display: flex;
+  flex-direction: column;
+  font-weight: 500;
+  color: #333;
+}
+
+input {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.password-field {
+  position: relative;
+}
+
+.password-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  margin-left: 0.5rem;
+  cursor: pointer;
+}
+
+.forgot-link {
+  text-align: right;
+  margin-top: 0.3rem;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: #c8a951;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.link-btn:hover {
+  color: #a88b3f;
+}
+
+.btn-login {
+  margin-top: 1rem;
+  background-color: #4f46e5;
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-login:hover {
+  background-color: #4338ca;
+}
+
+.separator {
+  text-align: center;
+  margin: 1rem 0;
+  color: #999;
+  font-size: 0.9rem;
+}
 </style>

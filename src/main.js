@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import { createPinia } from 'pinia'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import firebasePlugin from './plugins/firebase.plugin.js'
 import Toast from 'vue-toastification'
 import 'vue-toastification/dist/index.css'
@@ -9,6 +10,7 @@ import { useAuthStore } from '@/stores/authStore.js'
 
 const app = createApp(App)
 const pinia = createPinia()
+pinia.use(piniaPluginPersistedstate)
 
 app.use(pinia)
 app.use(router)
@@ -23,7 +25,7 @@ app.use(Toast, {
 
 const store = useAuthStore()
 
-// 🔄 Attente de la session avant le montage
+// 🔄 Restaurer la session avant le montage
 await store.fetchSession(router)
 
 app.mount('#app')

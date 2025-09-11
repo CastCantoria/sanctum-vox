@@ -1,35 +1,33 @@
 ﻿<template>
-  <section class="p-6">
-    <h1 class="text-2xl font-bold mb-4">Tableau de bord Admin</h1>
+  <section class="admin-dashboard fade-in">
+    <h1 class="dashboard-title">🎼 Tableau de bord Admin</h1>
 
-    <div v-if="loading" class="text-gray-600">Chargement des membres...</div>
+    <div v-if="loading" class="loading-text">Chargement des membres...</div>
 
     <div v-else>
-      <div class="overflow-x-auto">
-        <table class="min-w-full border border-gray-300 rounded-md">
-          <thead class="bg-gray-100">
+      <div class="table-wrapper">
+        <table class="member-table">
+          <thead>
             <tr>
-              <th class="px-4 py-2 text-left">Nom</th>
-              <th class="px-4 py-2 text-left">Email</th>
-              <th class="px-4 py-2 text-left">Actions</th>
+              <th>Nom</th>
+              <th>Email</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="member in members" :key="member.id" class="border-t">
-              <td class="px-4 py-2">{{ member.nom }} {{ member.prenom }}</td>
-              <td class="px-4 py-2">{{ member.email }}</td>
-              <td class="px-4 py-2 space-x-2">
-                <button @click="editMember(member)" class="text-blue-600 hover:underline">✏️ Modifier</button>
-                <button @click="deleteMember(member.id)" class="text-red-600 hover:underline">🗑️ Supprimer</button>
+            <tr v-for="member in members" :key="member.id">
+              <td>{{ member.nom }} {{ member.prenom }}</td>
+              <td>{{ member.email }}</td>
+              <td class="actions">
+                <button @click="editMember(member)" aria-label="Modifier le membre" class="btn-edit">✏️</button>
+                <button @click="deleteMember(member.id)" aria-label="Supprimer le membre" class="btn-delete">🗑️</button>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <button @click="exportMembers" class="mt-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
-        📤 Exporter en CSV
-      </button>
+      <button @click="exportMembers" class="btn-export">📤 Exporter en CSV</button>
     </div>
 
     <MemberEditor
@@ -93,3 +91,98 @@ function exportMembers() {
   link.click()
 }
 </script>
+
+<style scoped>
+.admin-dashboard {
+  background-color: #fdfaf6;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(200, 169, 81, 0.1);
+}
+
+.fade-in {
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dashboard-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #c8a951;
+  margin-bottom: 1.5rem;
+}
+
+.loading-text {
+  color: #6b7280;
+  font-style: italic;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: 8px;
+}
+
+.member-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  border: 1px solid #e5e7eb;
+}
+
+.member-table th,
+.member-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+}
+
+.member-table thead {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.member-table tbody tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-edit,
+.btn-delete {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: transform 0.2s ease;
+}
+
+.btn-edit:hover {
+  color: #2563eb;
+  transform: scale(1.1);
+}
+
+.btn-delete:hover {
+  color: #dc2626;
+  transform: scale(1.1);
+}
+
+.btn-export {
+  margin-top: 1.5rem;
+  padding: 0.6rem 1.2rem;
+  background-color: #4f46e5;
+  color: white;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.btn-export:hover {
+  background-color: #4338ca;
+}
+</style>

@@ -1,57 +1,4 @@
-﻿<script setup>
-import { ref, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth'
-import { getFirestore, doc, getDoc } from 'firebase/firestore'
-import { useAuthPopup } from '@/composables/useAuthPopup'
-
-const router = useRouter()
-const auth = getAuth()
-const db = getFirestore()
-const { openAuth } = useAuthPopup()
-
-const user = ref(null)
-const role = ref(null)
-const isMenuOpen = ref(false)
-const activeGroup = ref(null)
-
-const avatarURL = computed(() =>
-  user.value?.photoURL || '/assets/images/avatar-default.png'
-)
-
-onMounted(() => {
-  const unsubscribe = onAuthStateChanged(auth, async (u) => {
-    user.value = u
-    if (u) {
-      const docSnap = await getDoc(doc(db, 'users', u.uid))
-      role.value = docSnap.exists() ? docSnap.data().role : null
-
-      if (role.value === 'admin') {
-        router.push('/admin/dashboard')
-      }
-    }
-    unsubscribe()
-  })
-})
-
-const handleLogout = async () => {
-  await signOut(auth)
-  user.value = null
-  role.value = null
-  router.push('/')
-}
-
-const confirmLogout = () => {
-  if (confirm("Voulez-vous vraiment vous déconnecter ?")) {
-    handleLogout()
-  }
-}
-
-const goToProfile = () => {
-  router.push('/profile')
-}
-</script>
-<template>
+﻿<template>
   <header class="header">
     <div class="logo-container">
       <img src="/assets/images/logo-cantoria.png" alt="Logo Cantoria" class="logo-img" />
@@ -85,24 +32,65 @@ const goToProfile = () => {
             <router-link to="/pedagogie" class="nav-link">Pédagogie</router-link>
           </div>
         </div>
-
-        <router-link v-if="user" to="/profile" class="nav-link">Profil</router-link>
       </div>
 
       <div class="auth-actions">
-        <template v-if="user">
-          <button class="avatar-btn" @click="goToProfile" title="Profil">
+        <template v-if="isLoggedIn">
+          <div class="user-menu" @click="toggleUserMenu">
             <img :src="avatarURL" alt="Avatar" class="avatar-img" />
-          </button>
-          <button class="icon-btn" @click="confirmLogout" title="Déconnexion">⛔</button>
+            <svg class="chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M7 10l5 5 5-5z"/>
+            </svg>
+
+            <div v-if="userMenuOpen" class="dropdown-user">
+              <button class="dropdown-item" @click="goToProfile">👤 Modifier le profil</button>
+              <button class="dropdown-item" @click="confirmLogout">🚪 Déconnexion</button>
+            </div>
+          </div>
         </template>
+
         <template v-else>
-          <button class="icon-btn" @click="openAuth('login')" title="Connexion">👤</button>
+          <button class="icon-btn" @click="openAuth" title="Connexion">👤</button>
         </template>
       </div>
     </nav>
   </header>
 </template>
+
+<script setup>
+import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/authStore.js'
+import { useAuthPopup } from '@/composables/useAuthPopup'
+
+const router = useRouter()
+const authStore = useAuthStore()
+const { openAuth } = useAuthPopup()
+
+const isMenuOpen = ref(false)
+const activeGroup = ref(null)
+const userMenuOpen = ref(false)
+
+const isLoggedIn = computed(() => authStore.isLoggedIn)
+const avatarURL = computed(() =>
+  authStore.user?.photoURL || '/assets/images/avatar-default.png'
+)
+
+const toggleUserMenu = () => {
+  userMenuOpen.value = !userMenuOpen.value
+}
+
+const goToProfile = () => {
+  router.push('/profile')
+}
+
+const confirmLogout = async () => {
+  if (confirm("Voulez-vous vraiment vous déconnecter ?")) {
+    await authStore.logout(router)
+    userMenuOpen.value = false
+  }
+}
+</script>
 <style scoped>
 .header {
   background-color: #fdfaf6;
@@ -230,13 +218,6 @@ const goToProfile = () => {
   transform: scale(1.1);
 }
 
-.avatar-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-}
-
 .avatar-img {
   width: 32px;
   height: 32px;
@@ -248,6 +229,53 @@ const goToProfile = () => {
 
 .avatar-img:hover {
   transform: scale(1.1);
+}
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  position: relative;
+}
+
+.chevron {
+  width: 20px;
+  height: 20px;
+  fill: #3a3a3a;
+}
+
+.dropdown-user {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-top: 0.5rem;
+  min-width: 160px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.dropdown-item {
+  display: block;
+  padding: 0.6rem 1rem;
+  font-size: 0.95rem;
+  color: #333;
+  text-decoration: none;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background-color: #f5f5f5;
 }
 
 @media (max-width: 768px) {
@@ -291,6 +319,14 @@ const goToProfile = () => {
 
   .dropdown .nav-link {
     padding-left: 1rem;
+  }
+
+  .dropdown-user {
+    position: static;
+    box-shadow: none;
+    border: none;
+    margin-top: 0.5rem;
+    background: none;
   }
 }
 </style>

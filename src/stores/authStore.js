@@ -88,19 +88,13 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       await new Promise((resolve) => {
         onAuthStateChanged(auth, async (u) => {
-          if (!u) {
-            console.warn('Session non récupérée')
-            return resolve()
-          }
+          if (!u) return resolve()
 
           const tokenResult = await u.getIdToken()
           const userDocRef = doc(db, 'users', u.uid)
           const userDoc = await getDoc(userDocRef)
 
-          if (!userDoc.exists()) {
-            error('⛔ Profil utilisateur introuvable')
-            return resolve()
-          }
+          if (!userDoc.exists()) return resolve()
 
           const roleFromDb = userDoc.data().role || 'member'
           const isAdminFlag = roleFromDb === 'admin'
@@ -123,7 +117,6 @@ export const useAuthStore = defineStore('auth', () => {
         })
       })
     } catch (err) {
-      console.warn('Session non récupérée :', err.message)
       error('⛔ Impossible de restaurer la session')
     } finally {
       loading.value = false
@@ -142,5 +135,9 @@ export const useAuthStore = defineStore('auth', () => {
     fetchSession,
     setUser,
     setToken
+  }
+}, {
+  persist: {
+    paths: ['user', 'token', 'role']
   }
 })
