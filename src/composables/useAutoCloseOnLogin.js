@@ -7,7 +7,7 @@ export function useAutoCloseOnLogin(closeFn) {
 
   if (!authStore || !authStore.user) return
 
-  watch(() => authStore.user, (u) => {
+  watch(() => authStore.user.value, (u) => {
     if (u) closeFn()
   })
 }

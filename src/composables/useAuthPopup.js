@@ -15,7 +15,6 @@ export function useAuthPopup() {
     isAuthPopupVisible.value = false
   }
 
-  // ⏳ Fermeture automatique après connexion
   useAutoCloseOnLogin(closeAuth)
 
   return {

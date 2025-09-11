@@ -11,12 +11,10 @@ const ROLES = {
 export function usePermissions() {
   const { role } = useAuth()
 
-  // 🔍 Helper dynamique
   const hasRole = (allowedRoles) => {
     return allowedRoles.includes(role.value)
   }
 
-  // 🔐 Capacités spécifiques
   const canEditGallery = computed(() => hasRole([ROLES.ADMIN]))
   const canDeleteUser = computed(() => hasRole([ROLES.ADMIN]))
   const canViewDashboard = computed(() => hasRole([ROLES.ADMIN, ROLES.MEMBER]))

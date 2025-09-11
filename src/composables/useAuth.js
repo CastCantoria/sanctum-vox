@@ -116,6 +116,8 @@ export function useAuth() {
   }
 
   return {
+    user: authStore.user,
+    role: authStore.role,
     login,
     signup,
     loginWithGoogle,
