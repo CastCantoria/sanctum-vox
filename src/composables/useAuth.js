@@ -1,4 +1,4 @@
-﻿// 📁 composables/useAuth.js
+﻿// 📁 src/composables/useAuth.js
 import { useAuthStore } from '@/stores/authStore.js'
 import {
   createUserWithEmailAndPassword,
@@ -7,24 +7,34 @@ import {
   updateProfile as firebaseUpdateProfile,
   updatePassword
 } from 'firebase/auth'
-import { doc, getDoc, setDoc } from 'firebase/firestore'
-import { auth, db } from '@/firebase'
+import { auth } from '@/firebase'
 import { useToaster } from '@/composables/useToaster'
+import { useUserProfile } from '@/composables/useUserProfile'
 
 export function useAuth() {
   const authStore = useAuthStore()
   const { success, error } = useToaster()
+  const {
+    fetchUserProfile,
+    createDefaultProfile,
+    updateUserProfile
+  } = useUserProfile()
 
-  // 📝 Inscription email
+  const login = async (email, password, router) => {
+    try {
+      await authStore.login(email, password, router)
+    } catch (err) {
+      error('⛔ Erreur de connexion : ' + err.message)
+      throw err
+    }
+  }
+
   const signup = async (email, password, router) => {
     try {
       const result = await createUserWithEmailAndPassword(auth, email, password)
       const user = result.user
 
-      await setDoc(doc(db, 'users', user.uid), {
-        role: 'member',
-        email: user.email
-      })
+      await createDefaultProfile(user.uid, user.email)
 
       authStore.setUser({
         uid: user.uid,
@@ -45,27 +55,20 @@ export function useAuth() {
     }
   }
 
-  // 🌐 Connexion Google
   const loginWithGoogle = async (router) => {
     try {
       const provider = new GoogleAuthProvider()
       const result = await signInWithPopup(auth, provider)
       const user = result.user
 
-      const userDocRef = doc(db, 'users', user.uid)
-      const userDoc = await getDoc(userDocRef)
+      let profile = await fetchUserProfile(user.uid)
 
-      let roleFromDb = 'member'
-      if (!userDoc.exists()) {
-        await setDoc(userDocRef, {
-          role: roleFromDb,
-          email: user.email
-        })
-      } else {
-        roleFromDb = userDoc.data().role || 'member'
+      if (!profile) {
+        await createDefaultProfile(user.uid, user.email)
+        profile = { role: 'member' }
       }
 
-      const isAdminFlag = roleFromDb === 'admin'
+      const isAdminFlag = profile.role === 'admin'
 
       authStore.setUser({
         uid: user.uid,
@@ -86,29 +89,26 @@ export function useAuth() {
     }
   }
 
-  // 🧾 Mise à jour du profil
   const updateProfile = async (user, data) => {
-    await firebaseUpdateProfile(user, {
-      displayName: data.displayName || '',
-      photoURL: data.photoURL || null
-    })
+    try {
+      await firebaseUpdateProfile(user, {
+        displayName: data.displayName || '',
+        photoURL: data.photoURL || null
+      })
 
-    await setDoc(
-      doc(db, 'users', user.uid),
-      {
-        role: authStore.role || 'member',
+      await updateUserProfile(user.uid, {
+        role: authStore.role?.value || 'member',
         email: user.email,
         phone: data.phoneNumber || '',
         displayName: data.displayName || '',
         photoURL: data.photoURL || null
-      },
-      { merge: true }
-    )
-
-    success('Profil mis à jour ✨')
+      })
+    } catch (err) {
+      error('⛔ Échec de mise à jour du profil')
+      throw err
+    }
   }
 
-  // 🔑 Changement de mot de passe
   const changePassword = async (newPassword) => {
     if (!auth.currentUser) throw new Error('Utilisateur non connecté.')
     await updatePassword(auth.currentUser, newPassword)
@@ -116,6 +116,7 @@ export function useAuth() {
   }
 
   return {
+    login,
     signup,
     loginWithGoogle,
     updateProfile,

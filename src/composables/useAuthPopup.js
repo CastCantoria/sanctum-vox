@@ -1,13 +1,11 @@
 ﻿// 📁 src/composables/useAuthPopup.js
-import { ref, watch } from 'vue'
-import { useAuth } from '@/composables/useAuth'
+import { ref } from 'vue'
+import { useAutoCloseOnLogin } from './useAutoCloseOnLogin'
 
 const isAuthPopupVisible = ref(false)
 const authMode = ref('login')
 
 export function useAuthPopup() {
-  const { user } = useAuth()
-
   const openAuth = (mode = 'login') => {
     authMode.value = mode
     isAuthPopupVisible.value = true
@@ -17,17 +15,13 @@ export function useAuthPopup() {
     isAuthPopupVisible.value = false
   }
 
-  const autoCloseOnLogin = () => {
-    watch(user, (u) => {
-      if (u) closeAuth()
-    })
-  }
+  // ⏳ Fermeture automatique après connexion
+  useAutoCloseOnLogin(closeAuth)
 
   return {
     isAuthPopupVisible,
     authMode,
     openAuth,
-    closeAuth,
-    autoCloseOnLogin
+    closeAuth
   }
 }
