@@ -1,32 +1,21 @@
 ﻿<template>
-  <div class="min-h-screen flex flex-col bg-gray-50 text-gray-800">
-    <AppHeader />
-
-    <main class="flex-grow animate-fade-slide">
-      <slot />
-    </main>
-
-    <AppFooter />
-  </div>
+  <Header />
+  <main class="auth-main">
+    <slot />
+  </main>
 </template>
 
 <script setup>
-import AppHeader from '@/components/admin/Header.vue'
-import AppFooter from '@/components/admin/Footer.vue'
+import Header from '@/components/header/Header.vue'
 </script>
 
 <style scoped>
-@keyframes fade-slide {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-.animate-fade-slide {
-  animation: fade-slide 0.5s ease-out;
+.auth-main {
+  padding: 2rem;
+  max-width: 600px;
+  margin: auto;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
 }
 </style>

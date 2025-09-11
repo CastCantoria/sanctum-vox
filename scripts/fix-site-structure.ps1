@@ -10,10 +10,10 @@ Get-ChildItem $viewsRoot -Filter *.vue | ForEach-Object {
 
     # Ajouter Header/Footer si absents
     if ($content -notmatch 'import Header') {
-        $content = $content -replace '(<script setup>)', '$1`nimport Header from "../components/Header.vue"'
+        $content = $content -replace '(<script setup>)', '$1`nimport Header from "@/components/header/Header.vue"'
     }
     if ($content -notmatch 'import Footer') {
-        $content = $content -replace '(<script setup>)', '$1`nimport Footer from "../components/Footer.vue"'
+        $content = $content -replace '(<script setup>)', '$1`nimport Footer from "@/components/Footer.vue"'
     }
 
     # Envelopper le contenu du template

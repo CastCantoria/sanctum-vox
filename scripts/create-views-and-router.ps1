@@ -12,10 +12,10 @@ function Write-IfMissingOrReplace($path, $content) {
 # --- HOME ---
 $homeView = @'
 <script setup>
-import Header from "../components/Header.vue"
+import Header from "@/components/header/Header.vue"
 import HeroSection from "../components/HeroSection.vue"
 import QuoteBlock from "../components/QuoteBlock.vue"
-import Footer from "../components/Footer.vue"
+import Footer from "@/components/Footer.vue"
 </script>
 
 <template>
@@ -48,8 +48,8 @@ Write-IfMissingOrReplace "$viewsRoot/Home.vue" $homeView
 # --- ABOUT ---
 $aboutView = @'
 <script setup>
-import Header from "../components/Header.vue"
-import Footer from "../components/Footer.vue"
+import Header from "@/components/header/Header.vue"
+import Footer from "@/components/Footer.vue"
 </script>
 
 <template>
@@ -89,8 +89,8 @@ Write-IfMissingOrReplace "$viewsRoot/About.vue" $aboutView
 # --- REPERTOIRE ---
 $repertoireView = @'
 <script setup>
-import Header from "../components/Header.vue"
-import Footer from "../components/Footer.vue"
+import Header from "@/components/header/Header.vue"
+import Footer from "@/components/Footer.vue"
 import RepertoireList from "../components/RepertoireList.vue"
 
 const european = [
@@ -119,8 +119,8 @@ Write-IfMissingOrReplace "$viewsRoot/Repertoire.vue" $repertoireView
 # --- CONCERTS ---
 $concertsView = @'
 <script setup>
-import Header from "../components/Header.vue"
-import Footer from "../components/Footer.vue"
+import Header from "@/components/header/Header.vue"
+import Footer from "@/components/Footer.vue"
 import EventCalendar from "../components/EventCalendar.vue"
 
 const events = [
@@ -142,8 +142,8 @@ Write-IfMissingOrReplace "$viewsRoot/Concerts.vue" $concertsView
 # --- SPIRITUALITE ---
 $spiritualiteView = @'
 <script setup>
-import Header from "../components/Header.vue"
-import Footer from "../components/Footer.vue"
+import Header from "@/components/header/Header.vue"
+import Footer from "@/components/Footer.vue"
 import SpiritualMeditation from "../components/SpiritualMeditation.vue"
 </script>
 

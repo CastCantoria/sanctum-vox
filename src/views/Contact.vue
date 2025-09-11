@@ -1,6 +1,6 @@
 ﻿<script setup>
-import Header from "../components/Header.vue"
-import Footer from "../components/Footer.vue"
+import Header from "@/components/header/Header.vue"
+import Footer from "@/components/Footer.vue"
 
 // Fonction d'envoi (à relier à un backend ou service email)
 const sendMessage = () => {

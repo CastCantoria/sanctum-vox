@@ -1,6 +1,6 @@
 ﻿<script setup>
-import Header from "../components/Header.vue"
-import Footer from "../components/Footer.vue"
+import Header from "@/components/header/Header.vue"
+import Footer from "@/components/Footer.vue"
 </script>
 
 <template>
@@ -29,20 +29,24 @@ import Footer from "../components/Footer.vue"
   display: flex;
   flex-direction: column;
 }
+
 .pedagogie {
   padding: 2rem;
   background-color: #000;
 }
+
 h1 {
   font-size: 2rem;
   margin-bottom: 1rem;
   color: #FFD700;
 }
+
 p {
   font-size: 1.1rem;
   margin-bottom: 1rem;
   color: #ccc;
 }
+
 .text-gold {
   color: #FFD700;
 }

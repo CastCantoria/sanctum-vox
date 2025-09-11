@@ -1,65 +1,128 @@
-# 🎶 C.A.S.T. Cantoria — Plateforme communautaire
+🎶 CastCantoria – Chœur Artistique & Spirituel de Tanà
+Bienvenue dans le dépôt officiel du site web CastCantoria, une chorale artistique et spirituelle basée à Antananarivo. Ce projet regroupe les ressources multimédia, les scripts, les composants web et les API nécessaires à la mise en ligne et à la gestion du site.
 
-Bienvenue dans la clarté du jour ✨  
-Ce projet est une application web dédiée à la communauté artistique et spirituelle du C.A.S.T. Cantoria. Il permet aux membres de se connecter, partager, consulter les événements, et gérer les contenus avec fluidité et élégance.
+📁 Structure du projet
+Voici l’organisation complète des fichiers et dossiers du volume DATA-IN :
+D:.
+├── .gitignore
+├── archive-unused.ps1
+├── cast tout.docx
+├── index.html
+├── package-lock.json
+├── package.json
+├── README.md
+├── structure.txt
+├── vercel.json
+├── vite.config.js
+├── api
+│   ├── api.txt
+│   ├── server.js
+│   ├── members
+│   │   ├── index.js
+│   │   └── [id].js
+│   ├── middlewares
+│   │   ├── logger.js
+│   │   └── verifyToken.js
+│   └── routes
+│       └── members.js
+├── utils
+│   ├── firebase.js
+│   ├── logger.js
+│   └── verifyToken.js
+├── dist
+│   ├── favicon.ico
+│   ├── index.html
+│   ├── vite.svg
+│   └── assets
+│       ├── avatar.jpg
+│       ├── favicon-cantoria.png
+│       └── concert1.jpg
+├── audio
+│   ├── cantique-1.mp3
+│   └── intro-cast.mp3
+├── images
+│   ├── cast-chorale.jpg
+│   ├── chorale-1.jpg
+│   └── ...
+├── video
+│   ├── message-spirituel.mp4
+│   └── presentation-cast.mp4
+├── lib
+│   └── lib.txt
+├── controllers
+│   └── members
+│       ├── create.js
+│       ├── delete.js
+│       ├── getAll.js
+│       └── update.js
+├── format
+├── parsing
+├── validation
+├── public
+│   ├── favicon.ico
+│   └── robots.txt
+├── scripts
+│   ├── add-images-to-paragraphs.ps1
+│   ├── create-galerie-and-players.ps1
+│   └── ...
+└── src
+    ├── App.vue
+    ├── firebase.js
+    ├── main.js
+    ├── style.css
+    └── assets
+        ├── logo.svg
+        └── styles
+            └── global.css
 
----
 
-## 🚀 Fonctionnalités principales
 
-- 🔐 Authentification sécurisée (email, Google, mot de passe oublié)
-- 🧑‍💼 Gestion des rôles (`admin`, `member`) avec redirection automatique
-- 📁 Galerie responsive et accessible
-- 📅 Pages publiques : concerts, pédagogie, spiritualité, contact…
-- 🛠️ Dashboard admin avec accès protégé
-- 🔄 Session persistante avec Firebase et Pinia
-- 🔔 Toasts interactifs pour feedback utilisateur
+⚙️ Installation
+Pour installer et exécuter le projet localement :
+# Cloner le dépôt
+git clone https://github.com/CastCantoria/cast-cantoria.git
 
----
-
-## 🧰 Stack technique
-
-| Technologie     | Usage                          |
-|----------------|---------------------------------|
-| Vue 3 + Vite    | Frontend moderne et rapide      |
-| Pinia           | Store global (auth, session)    |
-| Firebase Auth   | Connexion, session, sécurité    |
-| Firestore       | Stockage des profils et médias  |
-| Vue Router      | Navigation et protection des routes |
-| Toastification  | Notifications élégantes         |
-| Tailwind CSS    | Design responsive et accessible |
-
----
-
-## 📦 Installation
-
-```bash
-git clone https://github.com/ton-repo/cast-cantoria.git
+# Accéder au dossier
 cd cast-cantoria
+
+# Installer les dépendances
 npm install
+
+# Lancer le serveur de développement
 npm run dev
-🔐 Accès admin
-Pour accéder au dashboard admin (/admin/dashboard), le compte doit avoir le champ role: "admin" dans Firestore :
-{
-  "email": "admin@example.com",
-  "role": "admin"
-}
 
 
+💡 Assurez-vous d’avoir Node.js et npm installés sur votre machine.
 
-🧪 Sécurité Firestore
-Les règles Firestore sont configurées pour :
-- 🔒 Protéger les documents sensibles (config, users)
-- ✅ Autoriser les admins à lire/écrire
-- 👤 Permettre aux membres de lire leur propre profil
+
+🚀 Utilisation
+Une fois lancé, le site est accessible à l’adresse :
+http://localhost:5173
+Fonctionnalités disponibles :
+- 🎵 Lecture de fichiers audio dans /audio
+- 🎥 Visualisation de vidéos dans /video
+- 🖼️ Galerie d’images dans /images
+- 🧩 Composants Vue modifiables dans /src
+- 🛠️ Scripts PowerShell pour automatiser la création de galeries et l’ajout d’éléments visuels
+- 🔐 API sécurisée avec gestion des membres et middlewares
 
 🤝 Contribuer
-Les contributions sont les bienvenues !
-Merci de respecter la structure modulaire, les conventions de nommage, et l’esprit poétique du projet ✨
+Les contributions sont les bienvenues ! Pour proposer une amélioration :
+- Forkez le projet
+- Créez une branche :
+git checkout -b feature/amélioration
+- Commitez vos modifications :
+git commit -m 'Ajout d’une amélioration'
+- Poussez la branche :
+git push origin feature/amélioration
+- Ouvrez une Pull Request
 
-📄 Licence
+📜 Licence
 Ce projet est sous licence MIT.
+Consultez le fichier LICENSE pour plus d’informations.
 
-🙌 Remerciements
-Un grand merci à tous les membres du C.A.S.T. Cantoria pour leur inspiration, leur voix, et leur lumière.
-Et à toi, développeur·se, qui rends cette plateforme vivante.
+📣 À propos
+CastCantoria est bien plus qu’une chorale :
+C’est une communauté artistique et spirituelle qui célèbre la foi, la culture et la beauté du chant.
+Ce site vise à partager cette passion avec le monde entier.
+

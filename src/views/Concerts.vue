@@ -1,7 +1,7 @@
 ﻿<script setup>
-import Header from "../components/Header.vue"
-import Footer from "../components/Footer.vue"
-import EventCalendar from "../components/EventCalendar.vue"
+import Header from "@/components/header/Header.vue"
+import Footer from "@/components/Footer.vue"
+import EventCalendar from "@/components/EventCalendar.vue"
 
 const events = [
   { date: "2025-12-20", title: "Veillée de Noël", location: "Cathédrale d’Andohalo" },
@@ -11,11 +11,14 @@ const events = [
 
 <template>
   <div class="page">
-<Header />
-  <section class="p-8 bg-black">
-    <EventCalendar :events="events" />
-  </section>
-  <Footer />
+    <Header />
+
+    <section class="p-8 bg-black">
+      <h1 class="text-gold text-3xl mb-6">Nos concerts à venir</h1>
+      <EventCalendar :events="events" />
+    </section>
+
+    <Footer />
   </div>
 </template>
 
@@ -27,5 +30,8 @@ const events = [
   display: flex;
   flex-direction: column;
 }
-</style>
 
+.text-gold {
+  color: #FFD700;
+}
+</style>

@@ -52,8 +52,8 @@ Write-Or-Replace "$componentsRoot/MediaGallery.vue" $mediaGallery
 # --- Galerie.vue ---
 $galerieView = @'
 <script setup>
-import Header from "../components/Header.vue"
-import Footer from "../components/Footer.vue"
+import Header from "@/components/header/Header.vue"
+import Footer from "@/components/Footer.vue"
 import MediaGallery from "../components/MediaGallery.vue"
 
 const medias = [

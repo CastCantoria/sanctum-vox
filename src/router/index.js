@@ -3,7 +3,7 @@ import { getAuth } from 'firebase/auth'
 import { getFirestore, doc, getDoc } from 'firebase/firestore'
 import { useAuthStore } from '@/stores/authStore.js'
 
-// 🌐 Vues publiques
+// Vues publiques
 import Home from '@/views/Home.vue'
 import About from '@/views/About.vue'
 import Pedagogie from '@/views/Pedagogie.vue'
@@ -16,7 +16,7 @@ import Messages from '@/views/Messages.vue'
 import NotFound from '@/views/NotFound.vue'
 import Logout from '@/views/Logout.vue'
 
-// 🛠️ Layout et vues admin
+// Vues admin
 import AdminLayout from '@/layouts/AdminLayout.vue'
 import AdminDashboard from '@/views/admin/AdminDashboard.vue'
 import AdminMembers from '@/views/admin/AdminMembers.vue'
@@ -30,10 +30,9 @@ const routes = [
   { path: '/spiritualite', component: Spiritualite },
   { path: '/galerie', component: Galerie },
   { path: '/contact', component: Contact },
-  { path: '/profile', component: Profile },
+  { path: '/profile', component: Profile, meta: { requiresAuth: true } },
   { path: '/messages', component: Messages },
 
-  // 🔐 Déconnexion avec nettoyage complet
   {
     path: '/logout',
     component: Logout,
@@ -51,11 +50,10 @@ const routes = [
       store.setUser(null)
       localStorage.clear()
 
-      next()
+      next('/')
     }
   },
 
-  // 🛡️ Routes admin protégées
   {
     path: '/admin',
     component: AdminLayout,
@@ -67,7 +65,6 @@ const routes = [
     ]
   },
 
-  // 🧭 Fallback 404
   { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound }
 ]
 
@@ -76,12 +73,11 @@ const router = createRouter({
   routes
 })
 
-// 🔐 Middleware admin
+// 🔐 Middleware
 router.beforeEach(async (to, from, next) => {
   const auth = getAuth()
   const db = getFirestore()
   const store = useAuthStore()
-
   const currentUser = auth.currentUser
 
   if (to.meta.requiresAdmin) {
@@ -102,14 +98,17 @@ router.beforeEach(async (to, from, next) => {
         isAdmin: isAdminFlag
       })
 
-      const token = await currentUser.getIdToken()
-      store.setToken(token)
+      store.setToken(await currentUser.getIdToken())
 
       return isAdminFlag ? next() : next('/')
     } catch (error) {
       console.error('🔐 Erreur de vérification admin :', error)
       return next('/')
     }
+  }
+
+  if (to.meta.requiresAuth && !currentUser) {
+    return next('/')
   }
 
   next()

@@ -1,11 +1,11 @@
 ﻿<script setup>
 import { ref, onMounted } from "vue"
-import Header from "../components/Header.vue"
-import Footer from "../components/Footer.vue"
-import { useAuth } from "../composables/useAuth"
+import Header from "@/components/header/Header.vue"
+import Footer from "@/components/Footer.vue"
+import { useAuth } from "@/composables/useAuth"
 import { reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth"
 import { setDoc, doc } from "firebase/firestore"
-import { db } from "../firebase"
+import { db } from "@/firebase"
 
 const { user, role, updateProfile, changePassword } = useAuth()
 
@@ -20,7 +20,7 @@ const availableRoles = [
 ]
 const phone = ref("")
 const avatar = ref(null)
-const preview = ref("")
+const preview = ref("/avatar.png")
 
 const oldPassword = ref("")
 const newPassword = ref("")
@@ -29,15 +29,14 @@ const showOldPassword = ref(false)
 const showNewPassword = ref(false)
 const showConfirmPassword = ref(false)
 const showSuccessMessage = ref(false)
-
 onMounted(() => {
-  if (user.value) {
+  if (user?.value) {
     const nameParts = (user.value.displayName || "").split(" ")
     firstName.value = nameParts[0] || ""
     lastName.value = nameParts.slice(1).join(" ") || ""
     phone.value = user.value.phoneNumber || ""
-    preview.value = user.value.photoURL || "/assets/avatar.png"
-    selectedRole.value = role.value || ""
+    preview.value = user.value.photoURL || "/avatar.png"
+    selectedRole.value = role?.value || ""
   }
 })
 
@@ -53,20 +52,25 @@ const handleAvatarChange = (e) => {
     preview.value = URL.createObjectURL(file)
   }
 }
-
 const saveChanges = async () => {
   try {
-    await updateProfile(user.value, {
-      displayName: `${firstName.value} ${lastName.value}`,
+    const currentUser = user?.value
+    if (!currentUser) throw new Error("Utilisateur non connecté")
+
+    const displayName = `${firstName.value} ${lastName.value}`
+    const photoURL = avatar.value ? URL.createObjectURL(avatar.value) : currentUser.photoURL
+
+    await updateProfile(currentUser, {
+      displayName,
       phoneNumber: phone.value,
-      photoURL: avatar.value ? URL.createObjectURL(avatar.value) : user.value.photoURL
+      photoURL
     })
 
-    await setDoc(doc(db, 'users', user.value.uid), {
+    await setDoc(doc(db, 'users', currentUser.uid), {
       role: selectedRole.value,
       phone: phone.value,
-      displayName: `${firstName.value} ${lastName.value}`,
-      photoURL: avatar.value ? URL.createObjectURL(avatar.value) : user.value.photoURL
+      displayName,
+      photoURL
     }, { merge: true })
 
     if (oldPassword.value || newPassword.value || confirmPassword.value) {
@@ -79,8 +83,8 @@ const saveChanges = async () => {
         return
       }
 
-      const credential = EmailAuthProvider.credential(user.value.email, oldPassword.value)
-      await reauthenticateWithCredential(user.value, credential)
+      const credential = EmailAuthProvider.credential(currentUser.email, oldPassword.value)
+      await reauthenticateWithCredential(currentUser, credential)
       await changePassword(newPassword.value)
 
       oldPassword.value = ""
@@ -102,10 +106,9 @@ const saveChanges = async () => {
     <section class="profile">
       <h1>Mon profil</h1>
 
-      <div v-if="user">
-        <!-- Avatar -->
+      <div v-if="user?.value">
         <div class="avatar-wrapper">
-          <img :src="preview" alt="Avatar" class="avatar" />
+          <img :src="preview" alt="Avatar" class="avatar" @error="preview = '/avatar.png'" />
           <input
             v-if="isEditing"
             type="file"
@@ -114,50 +117,33 @@ const saveChanges = async () => {
             class="file-input"
           />
         </div>
-
-        <!-- Prénom -->
-        <p>
-          <strong>Prénom :</strong>
+                <p><strong>Prénom :</strong>
           <span v-if="!isEditing">{{ firstName }}</span>
           <input v-else v-model="firstName" class="input" />
         </p>
 
-        <!-- Nom -->
-        <p>
-          <strong>Nom :</strong>
+        <p><strong>Nom :</strong>
           <span v-if="!isEditing">{{ lastName }}</span>
           <input v-else v-model="lastName" class="input" />
         </p>
 
-        <!-- Rôle -->
-        <p>
-          <strong>Rôle :</strong>
+        <p><strong>Rôle :</strong>
           <span v-if="!isEditing">{{ selectedRole }}</span>
           <select v-else v-model="selectedRole" class="input">
             <option v-for="r in availableRoles" :key="r" :value="r">{{ r }}</option>
           </select>
         </p>
 
-        <!-- Téléphone -->
-        <p>
-          <strong>Téléphone :</strong>
+        <p><strong>Téléphone :</strong>
           <span v-if="!isEditing">{{ phone || '—' }}</span>
           <input v-else v-model="phone" class="input" />
         </p>
 
-        <!-- Email -->
-        <p><strong>Email :</strong> {{ user.email }}</p>
-
-        <!-- Changement de mot de passe -->
-        <div v-if="isEditing" class="password-update">
+        <p><strong>Email :</strong> {{ user.value.email }}</p>
+                <div v-if="isEditing" class="password-update">
           <label class="label">Ancien mot de passe</label>
           <div class="password-field">
-            <input
-              :type="showOldPassword ? 'text' : 'password'"
-              v-model="oldPassword"
-              class="input"
-              placeholder="••••••••"
-            />
+            <input :type="showOldPassword ? 'text' : 'password'" v-model="oldPassword" class="input" />
             <span class="eye" @click="showOldPassword = !showOldPassword">
               {{ showOldPassword ? '🙈' : '👁️' }}
             </span>
@@ -165,12 +151,7 @@ const saveChanges = async () => {
 
           <label class="label">Nouveau mot de passe</label>
           <div class="password-field">
-            <input
-              :type="showNewPassword ? 'text' : 'password'"
-              v-model="newPassword"
-              class="input"
-              placeholder="••••••••"
-            />
+            <input :type="showNewPassword ? 'text' : 'password'" v-model="newPassword" class="input" />
             <span class="eye" @click="showNewPassword = !showNewPassword">
               {{ showNewPassword ? '🙈' : '👁️' }}
             </span>
@@ -178,24 +159,16 @@ const saveChanges = async () => {
 
           <label class="label">Confirmer le nouveau mot de passe</label>
           <div class="password-field">
-            <input
-              :type="showConfirmPassword ? 'text' : 'password'"
-              v-model="confirmPassword"
-              class="input"
-              placeholder="••••••••"
-            />
+            <input :type="showConfirmPassword ? 'text' : 'password'" v-model="confirmPassword" class="input" />
             <span class="eye" @click="showConfirmPassword = !showConfirmPassword">
               {{ showConfirmPassword ? '🙈' : '👁️' }}
             </span>
           </div>
         </div>
-
-        <!-- Message de succès -->
-        <p v-if="showSuccessMessage" class="success-message">
+                <p v-if="showSuccessMessage" class="success-message">
           ✅ Profil et/ou mot de passe mis à jour avec succès.
         </p>
 
-        <!-- Actions -->
         <div class="actions">
           <button class="btn" @click="toggleEdit">
             {{ isEditing ? 'Annuler' : 'Modifier' }}
@@ -336,9 +309,11 @@ p {
   .profile {
     padding: 1rem;
   }
+
   h1 {
     font-size: 1.6rem;
   }
+
   .avatar {
     width: 80px;
     height: 80px;

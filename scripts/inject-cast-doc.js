@@ -61,8 +61,8 @@ sections.forEach((section, idx) => {
 
   const vueContent = `
 <script setup>
-import Header from "../components/Header.vue"
-import Footer from "../components/Footer.vue"
+import Header from "@/components/header/Header.vue"
+import Footer from "@/components/Footer.vue"
 import TextWithImage from "../components/TextWithImage.vue"
 </script>
 

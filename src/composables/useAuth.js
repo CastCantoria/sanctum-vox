@@ -1,5 +1,4 @@
-﻿// 📁 src/composables/useAuth.js
-import { useAuthStore } from '@/stores/authStore.js'
+﻿import { useAuthStore } from '@/stores/authStore.js'
 import {
   createUserWithEmailAndPassword,
   signInWithPopup,
@@ -22,13 +21,11 @@ export function useAuth() {
 
   const login = async (email, password, router) => {
     try {
-      await authStore.login(email, password, router)
+      await authStore.login(email, password)
+      const isAdmin = authStore.role?.value === 'admin'
+      router.push(isAdmin ? '/admin/dashboard' : '/profile')
     } catch (err) {
-      if (err.code === 'auth/invalid-credential') {
-        error('Identifiants incorrects. Vérifiez votre email ou mot de passe.')
-      } else {
-        error('⛔ Erreur de connexion : ' + err.message)
-      }
+      error('⛔ Erreur de connexion : ' + err.message)
       throw err
     }
   }
@@ -52,7 +49,7 @@ export function useAuth() {
       authStore.setToken(token)
 
       success('Inscription réussie 🎉')
-      if (router) router.push('/')
+      router.push('/profile')
     } catch (err) {
       error('⛔ Erreur d’inscription : ' + err.message)
       throw err
@@ -66,7 +63,6 @@ export function useAuth() {
       const user = result.user
 
       let profile = await fetchUserProfile(user.uid)
-
       if (!profile) {
         await createDefaultProfile(user.uid, user.email)
         profile = { role: 'member' }
@@ -85,8 +81,7 @@ export function useAuth() {
       const token = await user.getIdToken()
       authStore.setToken(token)
 
-      success('Connexion Google réussie 🎉')
-      if (router) router.push(isAdminFlag ? '/admin/dashboard' : '/')
+      router.push(isAdminFlag ? '/admin/dashboard' : '/profile')
     } catch (err) {
       error('⛔ Erreur Google : ' + err.message)
       throw err
