@@ -7,8 +7,8 @@ import {
   updatePassword
 } from 'firebase/auth'
 import { auth } from '@/firebase'
-import { useToaster } from '@/composables/useToaster'
-import { useUserProfile } from '@/composables/useUserProfile'
+import { useToaster } from '@/composables/ui/useToaster'
+import { useUserProfile } from '@/composables/auth/useUserProfile'
 
 export function useAuth() {
   const authStore = useAuthStore()

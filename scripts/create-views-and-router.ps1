@@ -15,7 +15,7 @@ $homeView = @'
 import Header from "@/components/header/Header.vue"
 import HeroSection from "../components/HeroSection.vue"
 import QuoteBlock from "../components/QuoteBlock.vue"
-import Footer from "@/components/Footer.vue"
+import Footer from "@/components/shared/Footer.vue"
 </script>
 
 <template>
@@ -49,7 +49,7 @@ Write-IfMissingOrReplace "$viewsRoot/Home.vue" $homeView
 $aboutView = @'
 <script setup>
 import Header from "@/components/header/Header.vue"
-import Footer from "@/components/Footer.vue"
+import Footer from "@/components/shared/Footer.vue"
 </script>
 
 <template>
@@ -90,7 +90,7 @@ Write-IfMissingOrReplace "$viewsRoot/About.vue" $aboutView
 $repertoireView = @'
 <script setup>
 import Header from "@/components/header/Header.vue"
-import Footer from "@/components/Footer.vue"
+import Footer from "@/components/shared/Footer.vue"
 import RepertoireList from "../components/RepertoireList.vue"
 
 const european = [
@@ -120,7 +120,7 @@ Write-IfMissingOrReplace "$viewsRoot/Repertoire.vue" $repertoireView
 $concertsView = @'
 <script setup>
 import Header from "@/components/header/Header.vue"
-import Footer from "@/components/Footer.vue"
+import Footer from "@/components/shared/Footer.vue"
 import EventCalendar from "../components/EventCalendar.vue"
 
 const events = [
@@ -143,7 +143,7 @@ Write-IfMissingOrReplace "$viewsRoot/Concerts.vue" $concertsView
 $spiritualiteView = @'
 <script setup>
 import Header from "@/components/header/Header.vue"
-import Footer from "@/components/Footer.vue"
+import Footer from "@/components/shared/Footer.vue"
 import SpiritualMeditation from "../components/SpiritualMeditation.vue"
 </script>
 

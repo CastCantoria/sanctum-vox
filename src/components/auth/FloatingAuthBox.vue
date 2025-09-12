@@ -26,7 +26,7 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { useAuthPopup } from '@/composables/useAuthPopup'
+import { useAuthPopup } from '@/composables/auth/useAuthPopup'
 import { useAuthStore } from '@/stores/authStore.js'
 import EmailAuthForm from './EmailAuthForm.vue'
 import PhoneSignup from './PhoneSignup.vue'

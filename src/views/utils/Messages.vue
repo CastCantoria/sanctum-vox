@@ -1,8 +1,8 @@
 ﻿<script setup>
 import { ref, onMounted } from 'vue'
 import { collection, getDocs, query, orderBy, updateDoc, doc } from 'firebase/firestore'
-import { db } from '../firebase'
-import { useAuth } from '../composables/useAuth'
+import { db } from '../../firebase'
+import { useAuth } from '../../composables/auth/useAuth'
 
 const { role } = useAuth()
 const messages = ref([])

@@ -32,7 +32,7 @@ import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth'
 import { getFirestore, doc, setDoc } from 'firebase/firestore'
 import { uploadFileAndGetURL } from '@/composables/useStorage'
 import { useRouter } from 'vue-router'
-import { useToaster } from '@/composables/useToaster'
+import { useToaster } from '@/composables/ui/useToaster'
 
 const auth = getAuth()
 const db = getFirestore()

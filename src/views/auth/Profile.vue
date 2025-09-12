@@ -1,8 +1,8 @@
 ﻿<script setup>
 import { ref, onMounted } from "vue"
 import Header from "@/components/header/Header.vue"
-import Footer from "@/components/Footer.vue"
-import { useAuth } from "@/composables/useAuth"
+import Footer from "@/components/shared/Footer.vue"
+import { useAuth } from "@/composables/auth/useAuth"
 import { reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth"
 import { setDoc, doc } from "firebase/firestore"
 import { db } from "@/firebase"

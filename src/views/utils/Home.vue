@@ -1,6 +1,7 @@
 ﻿<script setup>
-import Footer from "@/components/Footer.vue"
+// Pas besoin d'importer Header ou Footer ici
 </script>
+
 <template>
   <section class="home">
     <h1 class="title">Bienvenue sur C.A.S.T. – Cantoria</h1>
@@ -12,10 +13,6 @@ import Footer from "@/components/Footer.vue"
     </div>
   </section>
 </template>
-
-<script setup>
-// Pas besoin d'importer Header ici si tu utilises un layout
-</script>
 
 <style scoped>
 .home {

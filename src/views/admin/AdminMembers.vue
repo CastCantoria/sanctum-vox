@@ -29,7 +29,7 @@
 import { ref, onMounted } from 'vue'
 import { collection, getDocs, deleteDoc, doc, updateDoc } from 'firebase/firestore'
 import { db } from '@/firebase'
-import { useAuth } from '@/composables/useAuth'
+import { useAuth } from '@/composables/auth/useAuth'
 
 const { user } = useAuth()
 const membres = ref([])

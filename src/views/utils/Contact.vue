@@ -1,7 +1,4 @@
 ﻿<script setup>
-import Header from "@/components/header/Header.vue"
-import Footer from "@/components/Footer.vue"
-
 // Fonction d'envoi (à relier à un backend ou service email)
 const sendMessage = () => {
   alert("Votre message a été envoyé. Merci de nous avoir contactés !");
@@ -14,7 +11,8 @@ const sendMessage = () => {
 
     <main class="content">
       <div class="contact-header">
-        <img src="/assets/images/logo-cantoria.png" alt="Logo C.A.S.T." class="logo" />
+        <!-- ✅ Chemin corrigé vers public/images/logos -->
+        <img src="/images/logos/logo-cantoria.png" alt="Logo C.A.S.T." class="logo" />
         <h1 class="title">C.A.S.T. - Contact</h1>
       </div>
 

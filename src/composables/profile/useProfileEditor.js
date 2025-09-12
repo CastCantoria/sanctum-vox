@@ -5,7 +5,7 @@ import { updateProfile as firebaseUpdateProfile, updatePassword } from 'firebase
 import { setDoc, doc } from 'firebase/firestore'
 import { db } from '@/firebase'
 import { useAuthStore } from '@/stores/authStore'
-import { useToaster } from '@/composables/useToaster'
+import { useToaster } from '@/composables/ui/useToaster'
 
 export function useProfileEditor() {
   const store = useAuthStore()

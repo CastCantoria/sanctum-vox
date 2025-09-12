@@ -1,7 +1,7 @@
 ﻿<script setup>
 import { ref, onMounted } from 'vue'
 import MemberEditor from '@/components/admin/MemberEditor.vue'
-import { useAdminPanel } from '@/composables/useAdminPanel'
+import { useAdminPanel } from '@/composables/admin/useAdminPanel'
 
 const {
   members,

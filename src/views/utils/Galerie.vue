@@ -1,10 +1,8 @@
 ﻿<script setup>
 import { ref, onMounted } from "vue"
-import Header from "@/components/header/Header.vue"
-import Footer from "@/components/Footer.vue"
-import { useAuth } from "@/composables/useAuth"
-import { fetchGalleryImages } from "@/composables/useGallery"
-import { uploadFileAndGetURL } from "@/composables/useStorage"
+import { useAuth } from "@/composables/auth/useAuth"
+import { fetchGalleryImages } from "@/composables/gallery/useGallery"
+import { uploadFileAndGetURL } from "@/composables/firebase/useStorage"
 
 const { user, role } = useAuth()
 

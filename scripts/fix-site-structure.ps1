@@ -13,7 +13,7 @@ Get-ChildItem $viewsRoot -Filter *.vue | ForEach-Object {
         $content = $content -replace '(<script setup>)', '$1`nimport Header from "@/components/header/Header.vue"'
     }
     if ($content -notmatch 'import Footer') {
-        $content = $content -replace '(<script setup>)', '$1`nimport Footer from "@/components/Footer.vue"'
+        $content = $content -replace '(<script setup>)', '$1`nimport Footer from "@/components/shared/Footer.vue"'
     }
 
     # Envelopper le contenu du template

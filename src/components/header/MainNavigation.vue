@@ -1,5 +1,11 @@
-﻿<template>
-  <nav class="nav">
+﻿<script setup>
+defineProps({
+  menuOpen: Boolean
+})
+</script>
+
+<template>
+  <nav :class="['nav', { open: menuOpen }]">
     <ul class="nav-list">
       <li><RouterLink to="/" class="link" exact>Accueil</RouterLink></li>
       <li><RouterLink to="/about" class="link">À propos</RouterLink></li>
@@ -16,6 +22,13 @@
 .nav {
   display: flex;
   align-items: center;
+  transition: max-height 0.3s ease;
+  overflow: hidden;
+  max-height: 0;
+}
+
+.nav.open {
+  max-height: 300px;
 }
 
 .nav-list {
@@ -53,5 +66,12 @@
 .link.router-link-exact-active {
   font-weight: 700;
   border-bottom: 2px solid #FFD700;
+}
+
+@media (max-width: 768px) {
+  .nav-list {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
 }
 </style>

@@ -1,7 +1,5 @@
 ﻿<script setup>
-import Header from "@/components/header/Header.vue"
-import Footer from "@/components/Footer.vue"
-import EventCalendar from "@/components/EventCalendar.vue"
+import EventCalendar from "@/components/public/EventCalendar.vue"
 
 const events = [
   { date: "2025-12-20", title: "Veillée de Noël", location: "Cathédrale d’Andohalo" },

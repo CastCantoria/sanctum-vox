@@ -1,143 +1,107 @@
-﻿import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged
+﻿import { ref } from 'vue'
+import { defineStore } from 'pinia'
+import { 
+  getAuth, 
+  onAuthStateChanged, 
+  signInWithPopup, 
+  GoogleAuthProvider, 
+  signOut 
 } from 'firebase/auth'
-import {
-  getFirestore,
-  doc,
-  getDoc
-} from 'firebase/firestore'
-import { useToaster } from '@/composables/useToaster'
+import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore'
+import { useToaster } from '@/composables/ui/useToaster.js' // ✅ chemin corrigé
 
 export const useAuthStore = defineStore('auth', () => {
-  const user = ref(null)
-  const token = ref(null)
-  const role = ref(null)
-  const loading = ref(false)
-
-  const isAdmin = computed(() => role.value === 'admin' || user.value?.isAdmin === true)
-  const isLoggedIn = computed(() => !!user.value)
-
   const auth = getAuth()
   const db = getFirestore()
   const { success, error } = useToaster()
 
-  function setUser(u) {
-    user.value = u
-    role.value = u?.isAdmin ? 'admin' : 'member'
+  const user = ref(null)
+  const token = ref(null)
+  const loading = ref(true)
+
+  const setUser = (userData) => { user.value = userData }
+  const setToken = (tokenValue) => { token.value = tokenValue }
+
+  // ✅ Nouvelle méthode pour restaurer la session
+  const fetchSession = async () => {
+    return new Promise((resolve) => {
+      const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+        if (currentUser) {
+          const tokenValue = await currentUser.getIdToken()
+          setUser({
+            uid: currentUser.uid,
+            email: currentUser.email,
+            displayName: currentUser.displayName,
+            photoURL: currentUser.photoURL
+          })
+          setToken(tokenValue)
+        } else {
+          setUser(null)
+          setToken(null)
+        }
+        loading.value = false
+        unsubscribe()
+        resolve(currentUser)
+      })
+    })
   }
 
-  function setToken(t) {
-    token.value = t
-  }
-
-  async function login(email, password, router) {
-    loading.value = true
+  const loginWithGoogle = async () => {
     try {
-      const result = await signInWithEmailAndPassword(auth, email, password)
-      const u = result.user
-      const tokenResult = await u.getIdToken()
-      const userDocRef = doc(db, 'users', u.uid)
-      const userDoc = await getDoc(userDocRef)
+      const provider = new GoogleAuthProvider()
+      const result = await signInWithPopup(auth, provider)
+      const credential = GoogleAuthProvider.credentialFromResult(result)
+      const tokenValue = credential.accessToken
+      const userData = result.user
 
-      if (!userDoc.exists()) {
-        error('⛔ Profil utilisateur introuvable')
-        return
+      const userRef = doc(db, 'users', userData.uid)
+      const userSnap = await getDoc(userRef)
+      if (!userSnap.exists()) {
+        await setDoc(userRef, {
+          uid: userData.uid,
+          email: userData.email,
+          displayName: userData.displayName,
+          photoURL: userData.photoURL,
+          role: 'member'
+        })
       }
-
-      const roleFromDb = userDoc.data().role || 'member'
-      const isAdminFlag = roleFromDb === 'admin'
 
       setUser({
-        uid: u.uid,
-        email: u.email,
-        displayName: u.displayName,
-        photoURL: u.photoURL,
-        isAdmin: isAdminFlag
+        uid: userData.uid,
+        email: userData.email,
+        displayName: userData.displayName,
+        photoURL: userData.photoURL
       })
-
-      setToken(tokenResult)
-      success('Connexion réussie 🎉')
-
-      if (router) {
-        router.push(isAdminFlag ? '/admin/dashboard' : '/')
-      }
+      setToken(tokenValue)
+      success('Connexion réussie')
     } catch (err) {
-      error('⛔ Erreur de connexion : ' + err.message)
-      throw err
-    } finally {
-      loading.value = false
+      console.error('Erreur de connexion Google :', err)
+      error('Échec de la connexion')
     }
   }
 
-  async function logout(router) {
-    await signOut(auth)
-    user.value = null
-    token.value = null
-    role.value = null
-    success('Déconnexion réussie 👋')
-    if (router) router.push('/')
-  }
-
-  async function fetchSession(router) {
-    loading.value = true
+  const logout = async () => {
     try {
-      await new Promise((resolve) => {
-        onAuthStateChanged(auth, async (u) => {
-          if (!u) return resolve()
-
-          const tokenResult = await u.getIdToken()
-          const userDocRef = doc(db, 'users', u.uid)
-          const userDoc = await getDoc(userDocRef)
-
-          if (!userDoc.exists()) return resolve()
-
-          const roleFromDb = userDoc.data().role || 'member'
-          const isAdminFlag = roleFromDb === 'admin'
-
-          setUser({
-            uid: u.uid,
-            email: u.email,
-            displayName: u.displayName,
-            photoURL: u.photoURL,
-            isAdmin: isAdminFlag
-          })
-
-          setToken(tokenResult)
-
-          if (router && isAdminFlag) {
-            router.push('/admin/dashboard')
-          }
-
-          resolve()
-        })
-      })
+      await signOut(auth)
+      setUser(null)
+      setToken(null)
+      success('Déconnexion réussie')
     } catch (err) {
-      error('⛔ Impossible de restaurer la session')
-    } finally {
-      loading.value = false
+      console.error('Erreur de déconnexion :', err)
+      error('Échec de la déconnexion')
     }
   }
 
   return {
     user,
     token,
-    role,
     loading,
-    isAdmin,
-    isLoggedIn,
-    login,
-    logout,
-    fetchSession,
     setUser,
-    setToken
+    setToken,
+    fetchSession, // ✅ ajoutée ici
+    loginWithGoogle,
+    logout
   }
 }, {
-  persist: {
-    paths: ['user', 'token', 'role']
-  }
+  persist: true
 })

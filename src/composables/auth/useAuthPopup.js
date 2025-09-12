@@ -1,6 +1,5 @@
-﻿// 📁 src/composables/useAuthPopup.js
-import { ref } from 'vue'
-import { useAutoCloseOnLogin } from './useAutoCloseOnLogin'
+﻿import { ref } from 'vue'
+import { useAutoCloseOnLogin } from '@/composables/auth/useAutoCloseOnLogin' // ✅ chemin corrigé
 
 const isAuthPopupVisible = ref(false)
 const authMode = ref('login')

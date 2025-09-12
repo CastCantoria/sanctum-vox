@@ -1,6 +1,6 @@
 ﻿import { doc, getDoc, setDoc } from 'firebase/firestore'
 import { db } from '@/firebase'
-import { useToaster } from '@/composables/useToaster'
+import { useToaster } from '@/composables/ui/useToaster'
 
 export function useUserProfile() {
   const { success, error } = useToaster()

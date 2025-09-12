@@ -3,21 +3,23 @@ import { getAuth } from 'firebase/auth'
 import { getFirestore, doc, getDoc } from 'firebase/firestore'
 import { useAuthStore } from '@/stores/authStore.js'
 
-// Vues publiques
-import Home from '@/views/Home.vue'
-import About from '@/views/About.vue'
-import Pedagogie from '@/views/Pedagogie.vue'
-import Concerts from '@/views/Concerts.vue'
-import Spiritualite from '@/views/Spiritualite.vue'
-import Galerie from '@/views/Galerie.vue'
-import Contact from '@/views/Contact.vue'
-import Profile from '@/views/Profile.vue'
-import Messages from '@/views/Messages.vue'
-import NotFound from '@/views/NotFound.vue'
-import Logout from '@/views/Logout.vue'
+// Vues publiques (src/views/utils/)
+import Home from '@/views/utils/Home.vue'
+import About from '@/views/utils/About.vue'
+import Pedagogie from '@/views/utils/Pedagogie.vue'
+import Concerts from '@/views/utils/Concerts.vue'
+import Spiritualite from '@/views/utils/Spiritualite.vue'
+import Galerie from '@/views/utils/Galerie.vue'
+import Contact from '@/views/utils/Contact.vue'
+import Messages from '@/views/utils/Messages.vue'
+import NotFound from '@/views/utils/NotFound.vue'
+
+// Vues auth
+import Profile from '@/views/auth/Profile.vue'
+import Logout from '@/views/auth/Logout.vue'
 
 // Vues admin
-import AdminLayout from '@/layouts/AdminLayout.vue'
+import AdminLayout from '@/views/layouts/AdminLayout.vue'
 import AdminDashboard from '@/views/admin/AdminDashboard.vue'
 import AdminMembers from '@/views/admin/AdminMembers.vue'
 import AdminMediaPanel from '@/views/admin/AdminMediaPanel.vue'

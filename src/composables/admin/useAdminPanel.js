@@ -1,7 +1,7 @@
 ﻿// src/composables/useAdminPanel.js
 import { ref } from "vue"
-import { useFirebase } from "@/composables/useFirebase"
-import { useToaster } from "@/composables/useToaster"
+import { useFirebase } from "@/composables/firebase/useFirebase"
+import { useToaster } from "@/composables/ui/useToaster"
 
 export function useAdminPanel() {
   const { db } = useFirebase()

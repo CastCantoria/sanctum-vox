@@ -33,7 +33,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useAuth } from '@/composables/useAuth'
+import { useAuth } from '@/composables/auth/useAuth'
 import { useRouter } from 'vue-router'
 import GoogleLoginButton from './GoogleLoginButton.vue'
 
